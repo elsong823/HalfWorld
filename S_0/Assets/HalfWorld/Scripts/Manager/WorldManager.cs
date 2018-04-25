@@ -7,6 +7,10 @@ namespace ELGame
     public class WorldManager
         : MonoBehaviour
     {
+        #region
+        // 在计算位置时的重复随机次数
+        private const int randomChance = 100;
+
         //地图尺寸:x:地图宽 y:地图高
         [SerializeField] private Vector2 m_mapSize;
 
@@ -40,82 +44,17 @@ namespace ELGame
         private List<Transform> m_fieldClones = new List<Transform>();
         //围绕某个城市的野外会被装到这个dic中
         private Dictionary<Transform, List<Transform>> m_fieldClonesAroundCity = new Dictionary<Transform, List<Transform>>();
+        #endregion
 
-        //获取一个随机的城市位置
-        private Vector3 GetCityPos()
+        //重置并根据参数生成新的世界
+        public void ResetWorld()
         {
-            Vector3 randPos = new Vector3(0f, 1.01f, 0f);
-
-            //每次随机查找位置可以随机的机会，越大则越可能让世界摆放的相对分散，计算时间也越长
-            int chance = 10;
-            //是否找到了合适的位置
-            bool findOut = false;
-            while (chance > 0 && !findOut)
-            {
-                findOut = true;
-                --chance;
-                //随机一个位置
-                randPos.x = Random.Range(-m_mapSize.x * 0.5f, m_mapSize.x * 0.5f);
-                randPos.z = Random.Range(-m_mapSize.y * 0.5f, m_mapSize.y * 0.5f);
-                //计算与其他城市间的位置关系
-                foreach (var item in m_cityClones)
-                {
-                    //距离有点近呢
-                    if (EUtilityHelperL.CalcDistanceIn2D(item.transform.localPosition, randPos) < m_cityDensity)
-                    {
-                        findOut = false;
-                        break;
-                    }
-                }
-            }
-
-            //提醒一下
-            if (!findOut)
-                Debug.LogWarning("没有找到合适的位置，凑合一下吧~");
-
-            return randPos;
-        }
-
-        //获取一个随机的野外位置
-        private Vector3 GetFieldPos(Transform city)
-        {
-            Vector3 randPos = Vector3.zero;
-            //每次随机查找位置可以随机的机会，越大则越可能让世界摆放的相对分散，计算时间也越长
-            int chance = 10;
-            //是否找到了合适的位置
-            bool findOut = false;
-            List<Transform> temp = null;
-            m_fieldClonesAroundCity.TryGetValue(city, out temp);
-            while (chance > 0 && !findOut)
-            {
-                findOut = true;
-                --chance;
-                //在m_cityRadiusRange.x ~ m_cityRadiusRange.y半径范围内随机一个位置
-                //注意这里随机的位置是相对于当前city空间的
-                var randV2 = Random.insideUnitCircle.normalized * Random.Range(m_cityRadiusRange.x, m_cityRadiusRange.y);
-                randPos.x = randV2.x;
-                randPos.z = randV2.y;
-                if (temp != null)
-                {
-                    //计算与其他野外的位置关系
-                    foreach (var item in temp)
-                    {
-                        //距离有点近呢
-                        //需要将空间位置进行一次转换
-                        if (EUtilityHelperL.CalcDistanceIn2D(city.InverseTransformPoint(item.transform.position), randPos) < m_fieldDensity)
-                        {
-                            findOut = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            //提醒一下
-            if (!findOut)
-                Debug.LogWarning("没有找到合适的野外位置，凑合一下吧~");
-
-            return randPos;
+            //旧的不去
+            RemoveFields();
+            RemoveCities();
+            //新的不来
+            CreateCities();
+            CreateFields();
         }
 
         //根据城市总数，随机城市
@@ -201,15 +140,81 @@ namespace ELGame
             m_fieldClonesAroundCity.Clear();
         }
 
-        //重置并根据参数生成新的世界
-        public void ResetWorld()
+        //获取一个随机的城市位置
+        private Vector3 GetCityPos()
         {
-            //旧的不去
-            RemoveFields();
-            RemoveCities();
-            //新的不来
-            CreateCities();
-            CreateFields();
+            Vector3 randPos = new Vector3(0f, 1.01f, 0f);
+
+            //每次随机查找位置可以随机的机会，越大则越可能让世界摆放的相对分散，计算时间也越长
+            int chance = randomChance;
+            //是否找到了合适的位置
+            bool findOut = false;
+            while (chance > 0 && !findOut)
+            {
+                findOut = true;
+                --chance;
+                //随机一个位置
+                randPos.x = Random.Range(-m_mapSize.x * 0.5f, m_mapSize.x * 0.5f);
+                randPos.z = Random.Range(-m_mapSize.y * 0.5f, m_mapSize.y * 0.5f);
+                //计算与其他城市间的位置关系
+                foreach (var item in m_cityClones)
+                {
+                    //距离有点近呢
+                    if (EUtilityHelperL.CalcDistanceIn2D(item.transform.localPosition, randPos) < m_cityDensity)
+                    {
+                        findOut = false;
+                        break;
+                    }
+                }
+            }
+
+            //提醒一下
+            if (!findOut)
+                Debug.LogWarning("没有找到合适的位置，凑合一下吧~");
+
+            return randPos;
+        }
+
+        //获取一个随机的野外位置
+        private Vector3 GetFieldPos(Transform city)
+        {
+            Vector3 randPos = Vector3.zero;
+            //每次随机查找位置可以随机的机会，越大则越可能让世界摆放的相对分散，计算时间也越长
+            int chance = randomChance;
+            //是否找到了合适的位置
+            bool findOut = false;
+            List<Transform> temp = null;
+            m_fieldClonesAroundCity.TryGetValue(city, out temp);
+            while (chance > 0 && !findOut)
+            {
+                findOut = true;
+                --chance;
+                //在m_cityRadiusRange.x ~ m_cityRadiusRange.y半径范围内随机一个位置
+                //注意这里随机的位置是相对于当前city空间的
+                var randV2 = Random.insideUnitCircle.normalized * Random.Range(m_cityRadiusRange.x, m_cityRadiusRange.y);
+                randPos.x = randV2.x;
+                randPos.z = randV2.y;
+                if (temp != null)
+                {
+                    //计算与其他野外的位置关系
+                    foreach (var item in temp)
+                    {
+                        //距离有点近呢
+                        //需要将空间位置进行一次转换
+                        if (EUtilityHelperL.CalcDistanceIn2D(city.InverseTransformPoint(item.transform.position), randPos) < m_fieldDensity)
+                        {
+                            findOut = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            //提醒一下
+            if (!findOut)
+                Debug.LogWarning("没有找到合适的野外位置，凑合一下吧~");
+
+            return randPos;
         }
 
         private void OnGUI()
