@@ -181,12 +181,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf952ea2b9d14ff459cf5683deb806de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_mapSize: {x: 45, y: 45}
-  m_citiesCount: 25
-  m_fieldsAroundCity: 3
-  m_cityDensity: 2
-  m_fieldDensity: 0.1
-  m_cityRadius: 3
+  m_mapSize: {x: 40, y: 40}
+  m_citiesCount: 20
+  m_fieldsAroundCity: 4
+  m_cityDensity: 7
+  m_fieldDensity: 3
+  m_cityRadiusRange: {x: 2, y: 3.5}
   m_cityNode: {fileID: 975179452}
   m_fieldNode: {fileID: 36101492}
   m_cityModel: {fileID: 1481634847638054, guid: 2d863222316ff9f4bae46ade1a986f12,
@@ -436,8 +436,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1212310905}
-  m_LocalRotation: {x: -0.7071068, y: -0.000000014901161, z: -0.000000014901161, w: -0.7071067}
-  m_LocalPosition: {x: 16.364666, y: 175.66756, z: -0.13486478}
+  m_LocalRotation: {x: -0.13995554, y: 0.85086346, z: -0.41923994, w: -0.28404528}
+  m_LocalPosition: {x: 33.914577, y: 65.72825, z: 45.938126}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

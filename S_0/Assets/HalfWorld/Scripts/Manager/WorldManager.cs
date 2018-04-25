@@ -21,8 +21,8 @@ namespace ELGame
         [SerializeField, Range(0.1f, 10f)] private float m_cityDensity = 0.1f;
         //野外密度，越大野外越分散
         [SerializeField, Range(0.1f, 10f)] private float m_fieldDensity = 0.1f;
-        //城市半径，围绕城市生成的野外都在这个半径内随机摆放
-        [SerializeField, Range(0.1f, 10f)] private float m_cityRadius = 0.1f;
+        //城市半径，围绕城市生成的野外都在这个半径内随机摆放(min~max)
+        [SerializeField] private Vector2 m_cityRadiusRange;
 
 
         [Space(7)]
@@ -39,7 +39,7 @@ namespace ELGame
         private List<Transform> m_cityClones = new List<Transform>();
         private List<Transform> m_fieldClones = new List<Transform>();
         //围绕某个城市的野外会被装到这个dic中
-        private Dictionary<int, List<Transform>> m_fieldClonesAroundCity = new Dictionary<int, List<Transform>>();
+        private Dictionary<Transform, List<Transform>> m_fieldClonesAroundCity = new Dictionary<Transform, List<Transform>>();
 
         //获取一个随机的城市位置
         private Vector3 GetCityPos()
@@ -85,22 +85,24 @@ namespace ELGame
             //是否找到了合适的位置
             bool findOut = false;
             List<Transform> temp = null;
-            m_fieldClonesAroundCity.TryGetValue(city.GetInstanceID(), out temp);
+            m_fieldClonesAroundCity.TryGetValue(city, out temp);
             while (chance > 0 && !findOut)
             {
                 findOut = true;
                 --chance;
-                //随机一个位置
-                var randV2 = Random.insideUnitCircle * m_cityRadius;
+                //在m_cityRadiusRange.x ~ m_cityRadiusRange.y半径范围内随机一个位置
+                //注意这里随机的位置是相对于当前city空间的
+                var randV2 = Random.insideUnitCircle.normalized * Random.Range(m_cityRadiusRange.x, m_cityRadiusRange.y);
                 randPos.x = randV2.x;
                 randPos.z = randV2.y;
                 if (temp != null)
                 {
-                    //计算与其他城市间的位置关系
+                    //计算与其他野外的位置关系
                     foreach (var item in temp)
                     {
                         //距离有点近呢
-                        if (EUtilityHelperL.CalcDistanceIn2D(item.transform.localPosition, randPos) < m_fieldDensity)
+                        //需要将空间位置进行一次转换
+                        if (EUtilityHelperL.CalcDistanceIn2D(city.InverseTransformPoint(item.transform.position), randPos) < m_fieldDensity)
                         {
                             findOut = false;
                             break;
@@ -162,7 +164,7 @@ namespace ELGame
             //围绕城市建立野外
             foreach (var item in m_cityClones)
             {
-                //生成预定数量的城市
+                //生成预定数量的野外
                 for (int i = 0; i < m_fieldsAroundCity; ++i)
                 {
                     Transform clone = Instantiate(m_fieldModel).transform;
@@ -177,10 +179,10 @@ namespace ELGame
 
                     //用于加入到围绕城市的野外列表中，用作野外的密度检测
                     List<Transform> aroundCity = null;
-                    if (!m_fieldClonesAroundCity.TryGetValue(item.GetInstanceID(), out aroundCity))
+                    if (!m_fieldClonesAroundCity.TryGetValue(item, out aroundCity))
                     {
                         aroundCity = new List<Transform>();
-                        m_fieldClonesAroundCity.Add(item.GetInstanceID(), aroundCity);
+                        m_fieldClonesAroundCity.Add(item, aroundCity);
                     }
                     aroundCity.Add(clone);
                     ++created;
@@ -212,9 +214,33 @@ namespace ELGame
 
         private void OnGUI()
         {
-            if (GUI.Button(new Rect(0f, 0f, 100f, 100f), "Reset"))
+            if (GUI.Button(new Rect(0f, 0f, 100f, 100f), "Reset all"))
             {
                 ResetWorld();
+            }
+            else if (GUI.Button(new Rect(0f, 100f, 100f, 100f), "Reset city"))
+            {
+                RemoveFields();
+                RemoveCities();
+                CreateCities();
+            }
+            else if (GUI.Button(new Rect(0f, 200f, 100f, 100f), "Reset field"))
+            {
+                RemoveFields();
+                CreateFields();
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.yellow;
+            foreach (var item in m_fieldClonesAroundCity)
+            {
+                //将据有关系的城市和野外用线连接起来，方便显示
+                foreach (var field in item.Value)
+                {
+                    Gizmos.DrawLine(item.Key.position, field.position);
+                }
             }
         }
     }
