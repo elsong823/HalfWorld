@@ -15,21 +15,20 @@ namespace ELGame
         //所属游戏单位
         private GameUnit m_host = null;
         
-        public GameUnit GameUnit
+        //获取绑定的游戏对象
+        public T GetGameUnit<T>()
+            where T:GameUnit
         {
-            get
+            if (m_host == null)
             {
-                if (!m_host)
-                {
-                    m_host = GetComponent<GameUnit>();
-                }
-                return m_host;
+                m_host = GetComponent<T>();
             }
+            return m_host as T;
         }
 
         public void Init(params SObject[] args)
         {
-            var temp = GameUnit;
+
         }
         
         public void Reset(params SObject[] args)

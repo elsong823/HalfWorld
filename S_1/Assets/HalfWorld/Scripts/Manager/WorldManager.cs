@@ -187,8 +187,9 @@ namespace ELGame
             }
         }
 
+        //World Manager
         [SerializeField] Camera m_mainCamera;
-        [SerializeField] LayerMask m_groundLayer;
+        [SerializeField] LayerMask m_layers;
         [SerializeField] HeroUnit m_heroUnit;
         void Update()
         {
@@ -199,10 +200,10 @@ namespace ELGame
                 if(m_mainCamera && m_heroUnit)
                 {
                     RaycastHit raycastHit;
-                    if(Physics.Raycast(m_mainCamera.ScreenPointToRay(Input.mousePosition), out raycastHit, 1000f, m_groundLayer))
+                    if(Physics.Raycast(m_mainCamera.ScreenPointToRay(Input.mousePosition), out raycastHit, 1000f, m_layers))
                     {
-                        //如果点中了地面
-                        m_heroUnit.MoveTo(raycastHit.point);
+                        //如果点中了城市或野外
+                        m_heroUnit.MoveTo(raycastHit.collider.transform.position);
                     }
                 }
             }

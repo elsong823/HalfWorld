@@ -5,6 +5,27 @@
 /S_0/[Bb]uilds/
 /S_0/Assets/AssetStoreTools*
 
+/S_1/[Ll]ibrary/
+/S_1/[Tt]emp/
+/S_1/[Oo]bj/
+/S_1/[Bb]uild/
+/S_1/[Bb]uilds/
+/S_1/Assets/AssetStoreTools*
+
+/S_2/[Ll]ibrary/
+/S_2/[Tt]emp/
+/S_2/[Oo]bj/
+/S_2/[Bb]uild/
+/S_2/[Bb]uilds/
+/S_2/Assets/AssetStoreTools*
+
+/S_3/[Ll]ibrary/
+/S_3/[Tt]emp/
+/S_3/[Oo]bj/
+/S_3/[Bb]uild/
+/S_3/[Bb]uilds/
+/S_3/Assets/AssetStoreTools*
+
 # Visual Studio 2015 cache directory
 /.vs/
 

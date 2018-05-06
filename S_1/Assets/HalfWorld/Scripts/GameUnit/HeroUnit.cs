@@ -21,10 +21,15 @@ namespace ELGame
                 return m_motionComponent;
             }
         }
-        
+
+        [SerializeField, Range(1f, 10f)] private float m_heroMoveSpeed;
+
         public void MoveTo(Vector3 target)
         {
-            MotionComponent.MoveTo(target);
+            MotionComponent.MoveTo(target, m_heroMoveSpeed, delegate()
+            {
+                Debug.LogError("到达目的地");
+            });
         }
     }
 }
