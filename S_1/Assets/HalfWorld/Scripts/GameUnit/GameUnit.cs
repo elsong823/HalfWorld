@@ -12,6 +12,7 @@ namespace ELGame
         NONE,
         CITY,
         FIELD,
+        HERO,
     }
 
     public class GameUnit

@@ -186,5 +186,26 @@ namespace ELGame
                 CreateFields();
             }
         }
+
+        [SerializeField] Camera m_mainCamera;
+        [SerializeField] LayerMask m_groundLayer;
+        [SerializeField] HeroUnit m_heroUnit;
+        void Update()
+        {
+            if(Input.GetMouseButtonDown(0))
+            {
+                //test
+                //点击左键，英雄移动到目的地
+                if(m_mainCamera && m_heroUnit)
+                {
+                    RaycastHit raycastHit;
+                    if(Physics.Raycast(m_mainCamera.ScreenPointToRay(Input.mousePosition), out raycastHit, 1000f, m_groundLayer))
+                    {
+                        //如果点中了地面
+                        m_heroUnit.MoveTo(raycastHit.point);
+                    }
+                }
+            }
+        }
     }
 }
