@@ -40,8 +40,7 @@ namespace ELGame
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, m_viewRadius);
         }
-
-
+        
         //英雄状态
         enum HeroState
         {

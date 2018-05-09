@@ -35,8 +35,10 @@ namespace ELGame
         //clone城市和野外的模型
         [SerializeField] private CityUnit m_cityModel;
 
-        //clone出的城市
-        private List<CityUnit> m_cityClones = new List<CityUnit>();
+        //clone出的所有城市
+        [SerializeField] private HashSet<CityUnit> m_allCities = new HashSet<CityUnit>();
+        //clone出的所有野外
+        [SerializeField] private HashSet<FieldUnit> m_allFields = new HashSet<FieldUnit>();
         #endregion
 
         public static WorldManager Instance
@@ -101,25 +103,24 @@ namespace ELGame
 
                 //初始化城市
                 clone.Init();
-
-                m_cityClones.Add(clone);
             }
         }
 
         //移除所有城市
         private void RemoveCities()
         {
-            foreach (var item in m_cityClones)
+            CityUnit[] _temp = new CityUnit[m_allCities.Count];
+            m_allCities.CopyTo(_temp);
+            for (int i = 0; i < _temp.Length; ++i)
             {
-                item.Destroy();
+                _temp[i].Destroy();
             }
-            m_cityClones.Clear();
         }
 
         //根据每个城市周围的野外数量，随机生成野外
         private void CreateFields()
         {
-            foreach (var item in m_cityClones)
+            foreach (var item in m_allCities)
             {
                 item.CreateFields(m_fieldsAroundCity, m_fieldDensity, m_cityRadiusRange.x, m_cityRadiusRange.y);
             }
@@ -128,7 +129,7 @@ namespace ELGame
         //移除所有野外
         private void RemoveFields()
         {
-            foreach (var item in m_cityClones)
+            foreach (var item in m_allCities)
             {
                 item.RemoveAllRoundFields();
             }
@@ -151,7 +152,7 @@ namespace ELGame
                 randPos.x = Random.Range(-m_mapSize.x * 0.5f, m_mapSize.x * 0.5f);
                 randPos.z = Random.Range(-m_mapSize.y * 0.5f, m_mapSize.y * 0.5f);
                 //计算与其他城市间的位置关系
-                foreach (var item in m_cityClones)
+                foreach (var item in m_allCities)
                 {
                     //距离有点近呢
                     if (EUtilityHelperL.CalcDistanceIn2D(item.transform.localPosition, randPos) < m_cityDensity)
@@ -168,7 +169,43 @@ namespace ELGame
 
             return randPos;
         }
-        
+
+        //添加或者移除城市
+        public void OperateCity(CityUnit unit, bool register)
+        {
+            if (unit)
+            {
+                if (register)
+                    m_allCities.Add(unit);
+                else
+                    m_allCities.Remove(unit);
+            }
+        }
+
+        //把一个城市从记录中移除
+        public void OperateField(FieldUnit unit, bool register)
+        {
+            if (unit)
+            {
+                if (register)
+                    m_allFields.Add(unit);
+                else
+                    m_allFields.Remove(unit);
+            }
+        }
+
+        //遍历城市用
+        public HashSet<CityUnit>.Enumerator AllCities
+        {
+            get { return m_allCities.GetEnumerator(); }
+        }
+
+        //遍历野外用
+        public HashSet<FieldUnit>.Enumerator AllFields
+        {
+            get { return m_allFields.GetEnumerator(); }
+        }
+
         private void OnGUI()
         {
             if (GUI.Button(new Rect(0f, 0f, 100f, 100f), "Reset all"))
@@ -184,6 +221,11 @@ namespace ELGame
             {
                 RemoveFields();
                 CreateFields();
+            }
+            else if (GUI.Button(new Rect(0f, 300f, 100f, 100f), "Show Desc"))
+            {
+                Debug.Log("城市数量:" + m_allCities.Count);
+                Debug.Log("野外数量:" + m_allFields.Count);
             }
         }
 

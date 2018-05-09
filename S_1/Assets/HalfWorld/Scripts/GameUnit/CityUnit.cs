@@ -22,6 +22,9 @@ namespace ELGame
                 return;
             }
             base.Init(args);
+            
+            //向世界管理器注册
+            WorldManager.Instance.OperateCity(this, true);
         }
 
         /// <summary>
@@ -140,6 +143,9 @@ namespace ELGame
         {
             RemoveAllRoundFields();
             base.Destroy();
+
+            //从世界管理器中移除
+            WorldManager.Instance.OperateCity(this, false);
         }
     }
 }

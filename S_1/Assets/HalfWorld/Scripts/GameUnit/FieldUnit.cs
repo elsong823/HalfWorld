@@ -14,5 +14,17 @@ namespace ELGame
         {
             set { m_cityUnit = value; }
         }
+
+        public override void Init(params object[] args)
+        {
+            base.Init(args);
+            WorldManager.Instance.OperateField(this, true);
+        }
+
+        public override void Destroy()
+        {
+            base.Destroy();
+            WorldManager.Instance.OperateField(this, false);
+        }
     }
 }
