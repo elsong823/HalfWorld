@@ -22,8 +22,8 @@ GameObject:
   - component: {fileID: 33493950196098670}
   - component: {fileID: 136428868976730990}
   - component: {fileID: 23079678633618880}
-  - component: {fileID: 114664840989442236}
   - component: {fileID: 114142036173264914}
+  - component: {fileID: 114664840989442236}
   m_Layer: 11
   m_Name: Hero
   m_TagString: Untagged
@@ -38,7 +38,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1472182716933144}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 2.4476128, y: 1.51, z: 10.09}
+  m_LocalPosition: {x: 12.48, y: 1.51, z: 19.87}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -98,7 +98,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_gameUnitType: 3
   m_unitName: GameUnit
-  m_heroMoveSpeed: 0
+  m_heroMoveSpeed: 5
+  m_viewRadius: 0
+  m_heroState: 0
 --- !u!114 &114664840989442236
 MonoBehaviour:
   m_ObjectHideFlags: 1
