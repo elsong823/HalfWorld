@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 23079678633618880}
   - component: {fileID: 114142036173264914}
   - component: {fileID: 114664840989442236}
+  - component: {fileID: 114769094093296624}
   m_Layer: 11
   m_Name: Hero
   m_TagString: Untagged
@@ -57,6 +58,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: c5cd4593b2c16b3468a3499d73d65ed6, type: 2}
   m_StaticBatchInfo:
@@ -98,8 +100,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_gameUnitType: 3
   m_unitName: GameUnit
+  m_motionComponent: {fileID: 114664840989442236}
+  m_strategyComponent: {fileID: 114769094093296624}
   m_heroMoveSpeed: 5
-  m_viewRadius: 0
+  m_viewRadius: 5
   m_heroState: 0
 --- !u!114 &114664840989442236
 MonoBehaviour:
@@ -110,6 +114,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 64333e7d0a4c34859beaa9d5decf1dd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &114769094093296624
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1472182716933144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b11e1dfff8837ab48b618c77e058eafc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!136 &136428868976730990

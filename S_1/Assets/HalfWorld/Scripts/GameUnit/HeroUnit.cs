@@ -4,32 +4,50 @@ using UnityEngine;
 
 namespace ELGame
 {
+#if UNITY_EDITOR
+    using UnityEditor;
+    [CustomEditor(typeof(HeroUnit))]
+    public class HeroUnitInspector
+        :Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+
+            if (EditorApplication.isPlaying)
+            {
+                if (GUILayout.Button("测试:扫描"))
+                {
+                    HeroUnit unit = target as HeroUnit;
+                    if (unit)
+                    {
+                        unit.ScanRound();
+                    }
+                }
+            }
+        }
+    }
+#endif
+    
 
     public class HeroUnit
         : GameUnit
     {
-        private MotionComponent m_motionComponent;
+        [Space(10)]
+        //移动组件
+        [SerializeField] private MotionComponent m_motionComponent;
+        //策略组件
+        [SerializeField] private StrategyComponent m_strategyComponent;
 
-        private MotionComponent MotionComponent
-        {
-            get
-            {
-                if (!m_motionComponent)
-                {
-                    m_motionComponent = GetComponent<MotionComponent>();
-                }
+        [Space(10)]
 
-                return m_motionComponent;
-            }
-        }
+        [SerializeField, Range(1f, 10f)] private float m_heroMoveSpeed = 5f;
 
-        [SerializeField, Range(1f, 10f)] private float m_heroMoveSpeed;
-
-        [SerializeField, Range(1f, 5f)] private float m_viewRadius;
+        [SerializeField, Range(1f, 15f)] private float m_viewRadius = 5f;
 
         public void MoveTo(Vector3 target)
         {
-            MotionComponent.MoveTo(target, m_heroMoveSpeed, delegate ()
+            m_motionComponent.MoveTo(target, m_heroMoveSpeed, delegate ()
             {
                 Debug.LogError("到达目的地");
             });
@@ -100,6 +118,11 @@ namespace ELGame
         private void RecoverStrength()
         {
 
+        }
+
+        public void ScanRound()
+        {
+            m_strategyComponent.ScanRound(m_viewRadius);
         }
     }
 }

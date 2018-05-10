@@ -10,9 +10,17 @@ namespace ELGame
         //所属城市
         private CityUnit m_cityUnit = null;
 
+        //是否已经被探索过了
+        [SerializeField] private bool m_explored = false;
+
         public CityUnit CityUnit
         {
             set { m_cityUnit = value; }
+        }
+
+        public bool Explored
+        {
+            get { return m_explored; }
         }
 
         public override void Init(params object[] args)

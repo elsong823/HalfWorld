@@ -36,9 +36,9 @@ namespace ELGame
         [SerializeField] private CityUnit m_cityModel;
 
         //clone出的所有城市
-        [SerializeField] private HashSet<CityUnit> m_allCities = new HashSet<CityUnit>();
+        [SerializeField] private List<CityUnit> m_allCities = new List<CityUnit>();
         //clone出的所有野外
-        [SerializeField] private HashSet<FieldUnit> m_allFields = new HashSet<FieldUnit>();
+        [SerializeField] private List<FieldUnit> m_allFields = new List<FieldUnit>();
         #endregion
 
         public static WorldManager Instance
@@ -195,13 +195,13 @@ namespace ELGame
         }
 
         //遍历城市用
-        public HashSet<CityUnit>.Enumerator AllCities
+        public List<CityUnit>.Enumerator AllCities
         {
             get { return m_allCities.GetEnumerator(); }
         }
 
         //遍历野外用
-        public HashSet<FieldUnit>.Enumerator AllFields
+        public List<FieldUnit>.Enumerator AllFields
         {
             get { return m_allFields.GetEnumerator(); }
         }
@@ -222,10 +222,9 @@ namespace ELGame
                 RemoveFields();
                 CreateFields();
             }
-            else if (GUI.Button(new Rect(0f, 300f, 100f, 100f), "Show Desc"))
+            else if (GUI.Button(new Rect(0f, 300f, 100f, 100f), "Scan"))
             {
-                Debug.Log("城市数量:" + m_allCities.Count);
-                Debug.Log("野外数量:" + m_allFields.Count);
+                m_heroUnit.ScanRound();
             }
         }
 

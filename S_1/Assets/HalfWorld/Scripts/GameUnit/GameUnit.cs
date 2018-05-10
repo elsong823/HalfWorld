@@ -82,5 +82,14 @@ namespace ELGame
 
             GameObject.Destroy(gameObject);
         }
+
+        public override bool Equals(object other)
+        {
+            GameUnit unit = other as GameUnit;
+            if (!unit)
+                return false;
+
+            return unit.GetInstanceID() == this.GetInstanceID();
+        }
     }
 }

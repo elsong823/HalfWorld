@@ -147,5 +147,6 @@ namespace ELGame
             //从世界管理器中移除
             WorldManager.Instance.OperateCity(this, false);
         }
+
     }
 }
