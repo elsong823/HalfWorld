@@ -23,7 +23,6 @@ GameObject:
   - component: {fileID: 65247494364948152}
   - component: {fileID: 23915413267710262}
   - component: {fileID: 114778628353628866}
-  - component: {fileID: 114396495340992312}
   m_Layer: 10
   m_Name: Field
   m_TagString: Untagged
@@ -37,8 +36,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1798518094736692}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.8899994, y: 2.38, z: 2.9}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -57,6 +56,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: bbe359b346c8eb74298288b804d350bf, type: 2}
   m_StaticBatchInfo:
@@ -97,17 +97,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114396495340992312
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1798518094736692}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 55bca301504058248b1f2c899b63ab47, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114778628353628866
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -120,4 +109,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameUnitType: 2
-  m_unitName: GameUnit
+  m_unitName: Field
+  fieldData:
+    timeCost: 0
+    timeRemain: 0
+    difficulty: 0
+    exp: 0
+    gold: 0
+    fame: 0

@@ -23,7 +23,6 @@ GameObject:
   - component: {fileID: 65952230883152976}
   - component: {fileID: 23769860277852060}
   - component: {fileID: 114969168442530694}
-  - component: {fileID: 114721592662345026}
   m_Layer: 9
   m_Name: City
   m_TagString: Untagged
@@ -38,7 +37,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1481634847638054}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.89, y: 2.54, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -57,6 +56,7 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: f87c4dbde72d2c04c9af340b96280f6b, type: 2}
   m_StaticBatchInfo:
@@ -97,17 +97,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &114721592662345026
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1481634847638054}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e6c57420309d68143b708490d6fe88a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114969168442530694
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -120,7 +109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gameUnitType: 1
-  m_unitName: GameUnit
+  m_unitName: City
   m_fieldModel: {fileID: 114778628353628866, guid: 1629aebde7804434db34d52271916361,
     type: 2}
   m_roundFields: []

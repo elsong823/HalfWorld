@@ -4,27 +4,31 @@ using UnityEngine;
 
 namespace ELGame
 {
-    public class CityUnit 
+    public class City 
         : GameUnit
     {
         [Header("野外相关")]
         //野外的Prefab
-        [SerializeField] private FieldUnit m_fieldModel = null;
+        [SerializeField] private Field m_fieldModel = null;
 
         //围绕城市生成的野外都有哪些呢？
-        [SerializeField] private List<FieldUnit> m_roundFields = new List<FieldUnit>();
+        [SerializeField] private List<Field> m_roundFields = new List<Field>();
 
         public override void Init(params object[] args)
         {
+            if (m_inited)
+                return;
+
             if (!m_fieldModel)
             {
                 EUtilityHelperL.LogError("City unit error: none file model");
                 return;
             }
-            base.Init(args);
             
             //向世界管理器注册
             WorldManager.Instance.OperateCity(this, true);
+
+            m_inited = true;
         }
 
         /// <summary>
@@ -60,7 +64,7 @@ namespace ELGame
             //生成预定数量的野外
             for (int i = 0; i < count; ++i)
             {
-                FieldUnit clone = Instantiate<FieldUnit>(m_fieldModel);
+                Field clone = Instantiate<Field>(m_fieldModel);
                 clone.transform.SetParent(fieldNode.transform);
 
                 //设置名字
@@ -148,5 +152,13 @@ namespace ELGame
             WorldManager.Instance.OperateCity(this, false);
         }
 
+        public override void Reset(params object[] args)
+        {
+        }
+
+        public override string Desc()
+        {
+            return string.Empty;
+        }
     }
 }

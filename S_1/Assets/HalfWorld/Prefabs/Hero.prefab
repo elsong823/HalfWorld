@@ -39,7 +39,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1472182716933144}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 12.48, y: 1.51, z: 19.87}
+  m_LocalPosition: {x: -6, y: 1.51, z: 7.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -104,6 +104,9 @@ MonoBehaviour:
   m_strategyComponent: {fileID: 114769094093296624}
   m_heroMoveSpeed: 5
   m_viewRadius: 5
+  m_heroScanInterval: 0.5
+  m_fieldTarget: {fileID: 0}
+  m_cityTarget: {fileID: 0}
   m_heroState: 0
 --- !u!114 &114664840989442236
 MonoBehaviour:

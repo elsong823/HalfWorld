@@ -33,12 +33,12 @@ namespace ELGame
         
         [Space(7)]
         //clone城市和野外的模型
-        [SerializeField] private CityUnit m_cityModel;
+        [SerializeField] private City m_cityModel;
 
         //clone出的所有城市
-        [SerializeField] private List<CityUnit> m_allCities = new List<CityUnit>();
+        [SerializeField] private List<City> m_allCities = new List<City>();
         //clone出的所有野外
-        [SerializeField] private List<FieldUnit> m_allFields = new List<FieldUnit>();
+        [SerializeField] private List<Field> m_allFields = new List<Field>();
         #endregion
 
         public static WorldManager Instance
@@ -67,6 +67,11 @@ namespace ELGame
             }
         }
 
+        void Awake()
+        {
+            Random.InitState((int)System.DateTime.Now.Ticks);
+        }
+
         //重置并根据参数生成新的世界
         public void ResetWorld()
         {
@@ -91,7 +96,7 @@ namespace ELGame
             //生成预定数量的城市
             for (int i = 0; i < m_citiesCount; ++i)
             {
-                CityUnit clone = Instantiate<CityUnit>(m_cityModel);
+                City clone = Instantiate<City>(m_cityModel);
                 clone.name = string.Format("City_{0}", i);
                 clone.UnitName = clone.name;
 
@@ -109,7 +114,7 @@ namespace ELGame
         //移除所有城市
         private void RemoveCities()
         {
-            CityUnit[] _temp = new CityUnit[m_allCities.Count];
+            City[] _temp = new City[m_allCities.Count];
             m_allCities.CopyTo(_temp);
             for (int i = 0; i < _temp.Length; ++i)
             {
@@ -171,7 +176,7 @@ namespace ELGame
         }
 
         //添加或者移除城市
-        public void OperateCity(CityUnit unit, bool register)
+        public void OperateCity(City unit, bool register)
         {
             if (unit)
             {
@@ -182,8 +187,8 @@ namespace ELGame
             }
         }
 
-        //把一个城市从记录中移除
-        public void OperateField(FieldUnit unit, bool register)
+        //添加、移除一个野外
+        public void OperateField(Field unit, bool register)
         {
             if (unit)
             {
@@ -195,13 +200,13 @@ namespace ELGame
         }
 
         //遍历城市用
-        public List<CityUnit>.Enumerator AllCities
+        public List<City>.Enumerator AllCities
         {
             get { return m_allCities.GetEnumerator(); }
         }
 
         //遍历野外用
-        public List<FieldUnit>.Enumerator AllFields
+        public List<Field>.Enumerator AllFields
         {
             get { return m_allFields.GetEnumerator(); }
         }
@@ -222,16 +227,12 @@ namespace ELGame
                 RemoveFields();
                 CreateFields();
             }
-            else if (GUI.Button(new Rect(0f, 300f, 100f, 100f), "Scan"))
-            {
-                m_heroUnit.ScanRound();
-            }
         }
 
         //World Manager
         [SerializeField] Camera m_mainCamera;
         [SerializeField] LayerMask m_layers;
-        [SerializeField] HeroUnit m_heroUnit;
+        [SerializeField] Hero m_heroUnit;
         void Update()
         {
             if(Input.GetMouseButtonDown(0))
@@ -244,7 +245,7 @@ namespace ELGame
                     if(Physics.Raycast(m_mainCamera.ScreenPointToRay(Input.mousePosition), out raycastHit, 1000f, m_layers))
                     {
                         //如果点中了城市或野外
-                        m_heroUnit.MoveTo(raycastHit.collider.transform.position);
+
                     }
                 }
             }
