@@ -50,6 +50,8 @@ namespace ELGame
                 fame,
                 difficulty
             );
+
+            m_objTime.SetActive(false);
         }
 
         public void Explore(Hero hero)
@@ -60,11 +62,33 @@ namespace ELGame
             // float explored = hero.HeroStr * Time.deltaTime;
             float explored = Time.deltaTime;
             fieldData.timeRemain -= explored;
+            if(!m_objTime.activeSelf)
+                m_objTime.SetActive(true);
+
+            UpdateTimeBar(fieldData.timeRemain / fieldData.timeCost);
         }
 
         public override string Desc()
         {
             return string.Empty;
         }
+
+        //更新时间剩余（血条）
+#region TimeBar
+        [SerializeField]
+        Transform m_tranTimeRemain;
+        [SerializeField]
+        GameObject m_objTime;
+        private void UpdateTimeBar(float remain)
+        {
+            float rm = Mathf.Clamp01(remain);
+            if(m_tranTimeRemain)
+            {
+                m_tranTimeRemain.localPosition = new Vector3(0f, 1f - rm, 0f);
+                m_tranTimeRemain.localScale = new Vector3(1.2f, (rm <= 0.05f ? 0 : rm + 0.01f), 1.2f);
+            }
+        }
+
+#endregion
     }
 }

@@ -48,5 +48,13 @@ namespace ELGame
             p2.y = 0f;
             return Vector3.Distance(p1, p2);
         }
+
+        //计算3d空间下的两点平面距离平方
+        public static float CalcDistanceIn2D_SQR(Vector3 p1, Vector3 p2)
+        {
+            p1.y = 0f;
+            p2.y = 0f;
+            return (p2 - p1).sqrMagnitude;
+        }
     }
 }

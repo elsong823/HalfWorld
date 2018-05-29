@@ -10,7 +10,7 @@ namespace ELGame
         public enum HeroState
         {
             Idle,       //空闲
-            Move,       //移动中
+            Move,       //向野外移动
             Explore,    //探索中
             Recover     //恢复中
         }
@@ -42,7 +42,7 @@ namespace ELGame
         {
             get
             {
-                return m_fieldTarget != null ? (GameUnit)m_fieldTarget : m_cityTarget; 
+                return m_cityTarget != null ? (GameUnit)m_cityTarget : m_fieldTarget; 
             }
         }
 
@@ -84,7 +84,7 @@ namespace ELGame
                 case HeroState.Recover:
                     //恢复体力
                     RecoverHP();
-                break;
+                    break;
             }
         }
 
@@ -120,7 +120,7 @@ namespace ELGame
                 Vector3 dis = MoveTarget.transform.position - transform.position;
                 dis.y = 0f;
                 //到了
-                if(dis.sqrMagnitude <= 4f)
+                if(dis.sqrMagnitude <= 0.5f)
                 {
                     if(MoveTarget.GameUnitType == GameUnitType.CITY)
                     {
@@ -146,6 +146,48 @@ namespace ELGame
             }
         }
 
+        //疲劳扣减hp
+        float fatigueTimer = 0f;
+        void UpdateFatigue()
+        {
+            fatigueTimer += Time.deltaTime;
+            if(fatigueTimer >= 0.1f)
+            {
+                UpdateHpBar(--m_heroData.hpCur * 1f / m_heroData.hpMax);
+                fatigueTimer = 0f;
+                m_heroData.hpCur = Mathf.Clamp(m_heroData.hpCur, 0, m_heroData.hpMax);
+                if(m_heroData.hpCur <= 0)
+                {
+                    //回到离自己最近的城市
+                    SearchCity();
+                }
+            }
+        }
+
+        void SearchCity()
+        {
+            float dis = Mathf.Infinity;
+            float tempDis = 0f;
+            City target = null;
+            var citys = WorldManager.Instance.AllCities;
+            while (citys.MoveNext())
+            {
+                tempDis = EUtilityHelperL.CalcDistanceIn2D_SQR(citys.Current.transform.position, transform.position);
+                if(tempDis < dis)
+                {
+                    target = citys.Current;
+                    dis = tempDis;
+                }
+            }
+
+            if(target)
+            {
+                m_cityTarget = target;
+                State = HeroState.Move;
+            }
+        }
+
+        //探索目标
         void ExploreTarget()
         {
             if(!m_fieldTarget)
@@ -162,12 +204,29 @@ namespace ELGame
             {
                 State = HeroState.Idle;
             }
+
+            UpdateFatigue();
         }
 
+#region Recover
+        float m_recoverTimer = 0f;
         void RecoverHP()
         {
-
+            m_recoverTimer += Time.deltaTime;
+            if(m_recoverTimer >= 0.1f)
+            {
+                UpdateHpBar(++m_heroData.hpCur * 1f / m_heroData.hpMax);
+                m_recoverTimer = 0f;
+                m_heroData.hpCur = Mathf.Clamp(m_heroData.hpCur, 0, m_heroData.hpMax);
+                if (m_heroData.hpCur == m_heroData.hpMax)
+                {
+                    //继续返回探索
+                    m_cityTarget = null;
+                    State = HeroState.Move;
+                }
+            }
         }
+#endregion
 
         private void InitHeroData()
         {
@@ -176,7 +235,7 @@ namespace ELGame
             m_heroData.hpMax = 100;
             m_heroData.hpCur = m_heroData.hpMax;
             m_heroData.strength = Random.Range(10, 20);
-            m_heroData.moveSpeed = 1;
+            m_heroData.moveSpeed = 3;
         }
 
         //计算野外对于此英雄的权重
@@ -240,6 +299,24 @@ namespace ELGame
         {
             return string.Empty;
         }
+        #endregion
+
+        //更新血条
+#region HP Bar
+        [SerializeField]
+        Transform m_tranHpRemain;
+        [SerializeField]
+        GameObject m_objHP;
+        private void UpdateHpBar(float remain)
+        {
+            float rm = Mathf.Clamp01(remain);
+            if (m_tranHpRemain)
+            {
+                m_tranHpRemain.localPosition = new Vector3(0f, 1f - rm, 0f);
+                m_tranHpRemain.localScale = new Vector3(1.2f, (rm <= 0.05f ? 0 : rm + 0.01f), 1.2f);
+            }
+        }
+
 #endregion
     }
 }

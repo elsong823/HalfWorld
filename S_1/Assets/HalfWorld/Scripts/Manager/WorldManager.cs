@@ -213,42 +213,61 @@ namespace ELGame
 
         private void OnGUI()
         {
-            if (GUI.Button(new Rect(0f, 0f, 100f, 100f), "Reset all"))
+            if(m_heros.Count == 0)
             {
-                ResetWorld();
-            }
-            else if (GUI.Button(new Rect(0f, 100f, 100f, 100f), "Reset city"))
-            {
-                RemoveCities();
-                CreateCities();
-            }
-            else if (GUI.Button(new Rect(0f, 200f, 100f, 100f), "Reset field"))
-            {
-                RemoveFields();
-                CreateFields();
-            }
-        }
-
-        //World Manager
-        [SerializeField] Camera m_mainCamera;
-        [SerializeField] LayerMask m_layers;
-        [SerializeField] Hero m_heroUnit;
-        void Update()
-        {
-            if(Input.GetMouseButtonDown(0))
-            {
-                //test
-                //点击左键，英雄移动到目的地
-                if(m_mainCamera && m_heroUnit)
+                if (GUI.Button(new Rect(0f, 100f, 100f, 100f), "Reset all"))
                 {
-                    RaycastHit raycastHit;
-                    if(Physics.Raycast(m_mainCamera.ScreenPointToRay(Input.mousePosition), out raycastHit, 1000f, m_layers))
-                    {
-                        //如果点中了城市或野外
-
-                    }
+                    ResetWorld();
+                }
+                else if (GUI.Button(new Rect(0f, 200f, 100f, 100f), "Reset city"))
+                {
+                    RemoveCities();
+                    CreateCities();
+                }
+                else if (GUI.Button(new Rect(0f, 300f, 100f, 100f), "Reset field"))
+                {
+                    RemoveFields();
+                    CreateFields();
                 }
             }
+
+            if (GUI.Button(new Rect(0f, 0f, 100f, 100f), "Create hero"))
+            {
+                CreateHero();
+            }
         }
+
+#region Hero
+        [SerializeField] Transform m_heroNode;
+        [SerializeField] GameUnit m_heroModel;
+        [SerializeField] List<GameUnit> m_heros = new List<GameUnit>();
+
+        private void CreateHero()
+        {
+            if(!m_heroModel || !m_heroNode)
+                return;
+
+            if(m_allFields.Count == 0)
+            {
+                EUtilityHelperL.LogWarning("请先创建野外");
+                return;
+            }
+
+            GameUnit clone = Instantiate<GameUnit>(m_heroModel);
+            if(clone)
+            {
+                clone.transform.SetParent(m_heroNode);
+                m_heros.Add(clone);
+                //在城市位置出生
+                int randIdx = Random.Range(0, m_allCities.Count);
+                Vector3 pos = m_allCities[randIdx].transform.position;
+                pos.y = 1.51f;
+                clone.transform.position = pos;
+                clone.gameObject.SetActive(true);
+                //初始化
+                clone.Init();
+            }
+        }
+#endregion
     }
 }
