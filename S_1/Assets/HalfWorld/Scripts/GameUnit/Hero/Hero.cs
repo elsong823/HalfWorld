@@ -88,27 +88,33 @@ namespace ELGame
             }
         }
 
+        /// <summary>
+        /// 选择目的地
+        /// </summary>
         void SearchTarget()
         {
             float highest = -Mathf.Infinity;
             Field target = null;
-            
+
             //便利所有野外，计算目标
             var fields = WorldManager.Instance.AllFields;
             while (fields.MoveNext())
             {
                 var field = fields.Current;
+                //获取得分最高的野外为移动目标
                 float curWeight = CalcFieldWeight(field);
-                if(curWeight > highest)
+                if (curWeight > highest)
                 {
                     target = field;
                     highest = curWeight;
                 }
             }
 
-            if(target != null)
+            //设置目标
+            if (target != null)
             {
                 m_fieldTarget = target;
+                //切换状态
                 State = HeroState.Move;
             }
         }
@@ -146,15 +152,15 @@ namespace ELGame
             }
         }
 
-        //疲劳扣减hp
-        float fatigueTimer = 0f;
-        void UpdateFatigue()
+        //扣减hp
+        float damageTimer = 0f;
+        void Damage()
         {
-            fatigueTimer += Time.deltaTime;
-            if(fatigueTimer >= 0.1f)
+            damageTimer += Time.deltaTime;
+            if(damageTimer >= 0.1f)
             {
                 UpdateHpBar(--m_heroData.hpCur * 1f / m_heroData.hpMax);
-                fatigueTimer = 0f;
+                damageTimer = 0f;
                 m_heroData.hpCur = Mathf.Clamp(m_heroData.hpCur, 0, m_heroData.hpMax);
                 if(m_heroData.hpCur <= 0)
                 {
@@ -196,16 +202,19 @@ namespace ELGame
                 return;
             }
 
-            if(m_fieldTarget.fieldData.timeRemain > 0f)
+            //如果当前野外还有剩余资源
+            if(m_fieldTarget.fieldData.resRemain > 0f)
             {
+                //探索
                 m_fieldTarget.Explore(this);
+                //探索时扣减英雄生命
+                Damage();
             }
             else
             {
+                //尝试切换状态
                 State = HeroState.Idle;
             }
-
-            UpdateFatigue();
         }
 
 #region Recover
@@ -215,27 +224,28 @@ namespace ELGame
             m_recoverTimer += Time.deltaTime;
             if(m_recoverTimer >= 0.1f)
             {
-                UpdateHpBar(++m_heroData.hpCur * 1f / m_heroData.hpMax);
+                UpdateHpBar(++m_heroData.hpCur* 1f / m_heroData.hpMax);
                 m_recoverTimer = 0f;
                 m_heroData.hpCur = Mathf.Clamp(m_heroData.hpCur, 0, m_heroData.hpMax);
                 if (m_heroData.hpCur == m_heroData.hpMax)
                 {
-                    //继续返回探索
+                    //恢复好了继续返回探索
                     m_cityTarget = null;
                     State = HeroState.Move;
                 }
             }
         }
-#endregion
+
+        #endregion
 
         private void InitHeroData()
         {
             m_heroData.level = 0;
             m_heroData.exp = 0;
-            m_heroData.hpMax = 100;
+            m_heroData.hpMax = 50;
             m_heroData.hpCur = m_heroData.hpMax;
             m_heroData.strength = Random.Range(10, 20);
-            m_heroData.moveSpeed = 3;
+            m_heroData.moveSpeed = 5;
         }
 
         //计算野外对于此英雄的权重
@@ -302,18 +312,18 @@ namespace ELGame
         #endregion
 
         //更新血条
-#region HP Bar
-        [SerializeField]
-        Transform m_tranHpRemain;
-        [SerializeField]
-        GameObject m_objHP;
+        #region HP Bar
+
+        [SerializeField] GameObject m_objHP;
+
+        [SerializeField] Transform m_tranHpRemain;
         private void UpdateHpBar(float remain)
         {
             float rm = Mathf.Clamp01(remain);
             if (m_tranHpRemain)
             {
                 m_tranHpRemain.localPosition = new Vector3(0f, 1f - rm, 0f);
-                m_tranHpRemain.localScale = new Vector3(1.2f, (rm <= 0.05f ? 0 : rm + 0.01f), 1.2f);
+                m_tranHpRemain.localScale = new Vector3(1.2f, rm + 0.01f, 1.2f);
             }
         }
 

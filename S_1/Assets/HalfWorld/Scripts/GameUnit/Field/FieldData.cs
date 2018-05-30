@@ -7,8 +7,8 @@ namespace ELGame
 	[System.Serializable]
     public struct FieldData
     {
-		public float timeCost;		//花费时间
-		public float timeRemain;	//剩余时间
+		public float resVolume;		//总共资源量
+		public float resRemain; 	//剩余资源量
 		public int difficulty;		//难度值
 		public int exp;				//给予的经验
 		public int gold;			//给予的金钱
@@ -16,8 +16,8 @@ namespace ELGame
 
 		public FieldData(float timeCost, int exp, int gold, int fame, int difficulty)
 		{
-			this.timeCost = timeCost;
-			this.timeRemain = this.timeCost;
+			this.resVolume = timeCost;
+			this.resRemain = this.resVolume;
 			this.exp = exp;
             this.gold = gold;
             this.fame = fame;

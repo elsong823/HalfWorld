@@ -84,7 +84,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1798518094736692}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 1.858, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4704692026654764}
@@ -118,7 +118,6 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: bbe359b346c8eb74298288b804d350bf, type: 2}
   m_StaticBatchInfo:
@@ -153,7 +152,6 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: 6c2de8b6fc0ca44f28e9b1aedcb47014, type: 2}
   m_StaticBatchInfo:
@@ -188,7 +186,6 @@ MeshRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
-  m_RenderingLayerMask: 4294967295
   m_Materials:
   - {fileID: 2100000, guid: da22e40809c17471b92887c4288d0ae6, type: 2}
   m_StaticBatchInfo:
@@ -257,8 +254,8 @@ MonoBehaviour:
   m_gameUnitType: 2
   m_unitName: Field
   fieldData:
-    timeCost: 0
-    timeRemain: 0
+    resVolume: 0
+    resRemain: 0
     difficulty: 0
     exp: 0
     gold: 0

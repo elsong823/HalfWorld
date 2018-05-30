@@ -36,15 +36,15 @@ namespace ELGame
         public override void Reset(params object[] args)
         {
             //随机一些数据
-            float timeCost = Random.Range(5f, 10f);
+            float res = 2f;
             int difficulty = Random.Range(1, 5);
-            int gold = Mathf.CeilToInt(timeCost * Random.Range(10, 12f));
+            int gold = Mathf.CeilToInt(res * Random.Range(10, 12f));
             int fame = Mathf.CeilToInt(difficulty * Random.Range(10, 12f));
-            int exp = Mathf.CeilToInt(timeCost * Random.Range(1f, 1.2f) * difficulty);
+            int exp = Mathf.CeilToInt(res * Random.Range(1f, 1.2f) * difficulty);
 
             //重新创建一个新的野外数据
             fieldData = new FieldData(
-                timeCost,
+                res,
                 exp,
                 gold,
                 fame,
@@ -59,13 +59,27 @@ namespace ELGame
             if(!hero)
                 return;
 
-            // float explored = hero.HeroStr * Time.deltaTime;
+            //临时处理探索速度
             float explored = Time.deltaTime;
-            fieldData.timeRemain -= explored;
-            if(!m_objTime.activeSelf)
-                m_objTime.SetActive(true);
+            //资源量减少
+            fieldData.resRemain -= explored;
+            //没有剩余资源了
+            if (fieldData.resRemain <= 0f)
+            {
+                FieldResOver();
+            }
 
-            UpdateTimeBar(fieldData.timeRemain / fieldData.timeCost);
+            //显示资源剩余(血条)
+            UpdateRemainBar(fieldData.resRemain / fieldData.resVolume);
+        }
+
+        //没有资源了
+        private void FieldResOver()
+        {
+            //隐藏单位
+            gameObject.SetActive(false);
+            //世界管理器移除这个野外
+            WorldManager.Instance.OperateField(this, false);
         }
 
         public override string Desc()
@@ -79,13 +93,16 @@ namespace ELGame
         Transform m_tranTimeRemain;
         [SerializeField]
         GameObject m_objTime;
-        private void UpdateTimeBar(float remain)
+        private void UpdateRemainBar(float remain)
         {
+            if (!m_objTime.activeSelf)
+                m_objTime.SetActive(true);
+
             float rm = Mathf.Clamp01(remain);
             if(m_tranTimeRemain)
             {
                 m_tranTimeRemain.localPosition = new Vector3(0f, 1f - rm, 0f);
-                m_tranTimeRemain.localScale = new Vector3(1.2f, (rm <= 0.05f ? 0 : rm + 0.01f), 1.2f);
+                m_tranTimeRemain.localScale = new Vector3(1.2f, rm + 0.01f, 1.2f);
             }
         }
 
