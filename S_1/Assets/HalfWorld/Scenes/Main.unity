@@ -150,6 +150,7 @@ GameObject:
   m_Component:
   - component: {fileID: 125203151}
   - component: {fileID: 125203152}
+  - component: {fileID: 125203153}
   m_Layer: 0
   m_Name: WorldManager
   m_TagString: WorldManager
@@ -196,6 +197,20 @@ MonoBehaviour:
   m_heroModel: {fileID: 114142036173264914, guid: c0a8a2d9e0a03804b9ce4a498b050384,
     type: 2}
   m_heros: []
+--- !u!114 &125203153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 125203150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7829bd029c2da3649bd648287b731af9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lvToExp: {fileID: 4900000, guid: d9b23dd85c6ded54db49a341f90aca60, type: 3}
+  lvToFame: {fileID: 4900000, guid: f902dada82d71374792f5a6280c0bca4, type: 3}
+  strToTime: {fileID: 4900000, guid: cb48a26eac7838549a4106cf98b42db2, type: 3}
 --- !u!1 &328922135
 GameObject:
   m_ObjectHideFlags: 0
