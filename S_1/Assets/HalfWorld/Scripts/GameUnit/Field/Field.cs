@@ -48,8 +48,10 @@ namespace ELGame
                 exp,
                 gold,
                 fame,
-                difficulty
-            );
+                difficulty,
+                0.2f,
+                0.3f,
+                0.5f);
 
             m_objTime.SetActive(false);
         }

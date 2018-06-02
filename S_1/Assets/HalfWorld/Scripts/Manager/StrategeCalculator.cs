@@ -133,11 +133,11 @@ namespace ELGame
                 needLevel = Mathf.FloorToInt(fieldDiff[fieldData.difficulty].key);
             }
             //等级差距
-            float lvGrep = heroData.level - needLevel;
+            float lvGap = heroData.level - needLevel;
             float multiple = 1f;
             for (int i = 0; i < ladderExp.Length; ++i)
             {
-                if (lvGrep <= ladderExp[i].key)
+                if (lvGap <= ladderExp[i].key)
                 {
                     multiple = ladderExp[i].value;
                     break;
@@ -183,11 +183,11 @@ namespace ELGame
                 needLevel = Mathf.FloorToInt(fieldDiff[fieldData.difficulty].key);
             }
             //等级差距
-            float lvGrep = heroData.level - needLevel;
+            float lvGap = heroData.level - needLevel;
             float multiple = 1f;
             for (int i = 0; i < ladderFame.Length; ++i)
             {
-                if (lvGrep <= ladderFame[i].key)
+                if (lvGap <= ladderFame[i].key)
                 {
                     multiple = ladderFame[i].value;
                     break;
@@ -205,7 +205,30 @@ namespace ELGame
         /// <returns>探索时间</returns>
         public float CalculateExploreTime(HeroData heroData, FieldData fieldData, float volume)
         {
-            return 0f;
+            if(volume <= 0f)
+                return 0f;
+                
+            float strNeed = Mathf.Infinity;
+            if(fieldDiff.ContainsKey(fieldData.difficulty))
+            {
+                strNeed = fieldDiff[fieldData.difficulty].value;
+            }
+            else
+            {
+                EUtilityHelperL.LogError("错误的野外难度等级");
+            }
+            //计算力量差距
+            int gap = Mathf.FloorToInt((heroData.strength - strNeed) / strNeed * 100f);
+            float timeMultiple = 1f;
+            for(int i = 0; i < ladderTime.Length; ++i)
+            {
+                if(gap <= ladderTime[i].key)
+                {
+                    timeMultiple = ladderTime[i].value;
+                    break;
+                }
+            }
+            return volume * timeMultiple;
         }
 
         /// <summary>

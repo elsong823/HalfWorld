@@ -103,6 +103,7 @@ namespace ELGame
                 var field = fields.Current;
                 //获取得分最高的野外为移动目标
                 float curWeight = CalcFieldWeight(field);
+                EUtilityHelperL.LogError(curWeight);
                 if (curWeight > highest)
                 {
                     target = field;
@@ -251,17 +252,17 @@ namespace ELGame
         //计算野外对于此英雄的权重
         private float CalcFieldWeight(Field field)
         {
-            //test
-            return Random.Range(100f, 200f);
+            if(!StrategeCalculator.Instance)
+            {
+                return 0f;
+            }
 
             if(!field)
                 return 0f;
 
-            //距离的平方
-            float dis = (field.transform.position - transform.position).sqrMagnitude;
-            
-            return Random.Range(100f, 200f);
-            return 0f;
+            return StrategeCalculator.Instance.Calculate(
+                m_heroData, transform.position, 
+                field.fieldData, field.transform.position);
         }
 
         ///根据英雄情况计算探索时间
