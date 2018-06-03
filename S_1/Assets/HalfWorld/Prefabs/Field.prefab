@@ -187,7 +187,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: da22e40809c17471b92887c4288d0ae6, type: 2}
+  - {fileID: 2100000, guid: 009084f327fb27643ad6f48df5fd336a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -260,5 +260,11 @@ MonoBehaviour:
     exp: 0
     gold: 0
     fame: 0
+  m_colors:
+  - {r: 1, g: 0.9607843, b: 0.74509805, a: 1}
+  - {r: 1, g: 0.9607843, b: 0.3529412, a: 1}
+  - {r: 1, g: 0.558, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0.453, g: 0, b: 0, a: 1}
   m_tranTimeRemain: {fileID: 4154616700558000}
   m_objTime: {fileID: 1875472914943348}

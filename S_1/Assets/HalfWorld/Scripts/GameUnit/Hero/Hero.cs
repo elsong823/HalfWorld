@@ -15,19 +15,11 @@ namespace ELGame
             Recover     //恢复中
         }
 
-
         [SerializeField] private HeroState m_heroState = HeroState.Idle;
-        [SerializeField] private HeroData m_heroData;
         [SerializeField] private Field m_fieldTarget;
         [SerializeField] private City m_cityTarget;
 
-        public int HeroStr
-        {
-            get
-            {
-                return m_heroData.strength;
-            }
-        }
+        public HeroData heroData;
 
         private HeroState State
         {
@@ -103,7 +95,7 @@ namespace ELGame
                 var field = fields.Current;
                 //获取得分最高的野外为移动目标
                 float curWeight = CalcFieldWeight(field);
-                EUtilityHelperL.LogError(curWeight);
+                EUtilityHelperL.LogError(string.Format("{0}->{1:0.00}", field.name, curWeight));
                 if (curWeight > highest)
                 {
                     target = field;
@@ -148,7 +140,7 @@ namespace ELGame
                 else
                 {
                     //向目标移动
-                    transform.Translate(dis.normalized * Time.deltaTime * m_heroData.moveSpeed);
+                    transform.Translate(dis.normalized * Time.deltaTime * heroData.moveSpeed);
                 }
             }
         }
@@ -160,10 +152,10 @@ namespace ELGame
             damageTimer += Time.deltaTime;
             if(damageTimer >= 0.1f)
             {
-                UpdateHpBar(--m_heroData.hpCur * 1f / m_heroData.hpMax);
+                UpdateHpBar(--heroData.hpCur * 1f / heroData.hpMax);
                 damageTimer = 0f;
-                m_heroData.hpCur = Mathf.Clamp(m_heroData.hpCur, 0, m_heroData.hpMax);
-                if(m_heroData.hpCur <= 0)
+                heroData.hpCur = Mathf.Clamp(heroData.hpCur, 0, heroData.hpMax);
+                if(heroData.hpCur <= 0)
                 {
                     //回到离自己最近的城市
                     SearchCity();
@@ -225,10 +217,10 @@ namespace ELGame
             m_recoverTimer += Time.deltaTime;
             if(m_recoverTimer >= 0.1f)
             {
-                UpdateHpBar(++m_heroData.hpCur* 1f / m_heroData.hpMax);
+                UpdateHpBar(++heroData.hpCur* 1f / heroData.hpMax);
                 m_recoverTimer = 0f;
-                m_heroData.hpCur = Mathf.Clamp(m_heroData.hpCur, 0, m_heroData.hpMax);
-                if (m_heroData.hpCur == m_heroData.hpMax)
+                heroData.hpCur = Mathf.Clamp(heroData.hpCur, 0, heroData.hpMax);
+                if (heroData.hpCur == heroData.hpMax)
                 {
                     //恢复好了继续返回探索
                     m_cityTarget = null;
@@ -241,12 +233,12 @@ namespace ELGame
 
         private void InitHeroData()
         {
-            m_heroData.level = 0;
-            m_heroData.exp = 0;
-            m_heroData.hpMax = 50;
-            m_heroData.hpCur = m_heroData.hpMax;
-            m_heroData.strength = Random.Range(10, 20);
-            m_heroData.moveSpeed = 5;
+            heroData.level = 1;
+            heroData.exp = 0;
+            heroData.hpMax = 50;
+            heroData.hpCur = heroData.hpMax;
+            heroData.strength = Random.Range(10, 20);
+            heroData.moveSpeed = 5;
         }
 
         //计算野外对于此英雄的权重
@@ -261,7 +253,7 @@ namespace ELGame
                 return 0f;
 
             return StrategeCalculator.Instance.Calculate(
-                m_heroData, transform.position, 
+                heroData, transform.position, 
                 field.fieldData, field.transform.position);
         }
 

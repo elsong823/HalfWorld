@@ -13,11 +13,8 @@ namespace ELGame
 		public int exp;				//给予的经验
 		public int gold;			//给予的金钱
 		public int fame;			//给予的声望
-        public float expRate;
-        public float fameRate;
-        public float goldRate;
 
-		public FieldData(float timeCost, int exp, int gold, int fame, int difficulty, float expRate, float fameRate, float goldRate)
+		public FieldData(float timeCost, int exp, int gold, int fame, int difficulty)
 		{
 			this.resVolume = timeCost;
 			this.resRemain = this.resVolume;
@@ -25,9 +22,6 @@ namespace ELGame
             this.gold = gold;
             this.fame = fame;
             this.difficulty = difficulty;
-            this.expRate = expRate;
-            this.fameRate = fameRate;
-            this.goldRate = goldRate;
 		}
     }
 }

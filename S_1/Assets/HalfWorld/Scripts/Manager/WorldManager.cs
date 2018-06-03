@@ -32,13 +32,20 @@ namespace ELGame
         [SerializeField] private Vector2 m_cityRadiusRange;
         
         [Space(7)]
-        //clone城市和野外的模型
+        //城市的模型
         [SerializeField] private City m_cityModel;
+
+        [Space(7)]
+        //英雄模型
+        [SerializeField] Hero m_heroModel;
 
         //clone出的所有城市
         [SerializeField] private List<City> m_allCities = new List<City>();
         //clone出的所有野外
         [SerializeField] private List<Field> m_allFields = new List<Field>();
+        //clone出的所有英雄
+        [SerializeField] private List<Hero> m_allHeros = new List<Hero>();
+
         #endregion
 
         public static WorldManager Instance
@@ -213,7 +220,7 @@ namespace ELGame
 
         private void OnGUI()
         {
-            if(m_heros.Count == 0)
+            if(m_allHeros.Count == 0)
             {
                 if (GUI.Button(new Rect(0f, 100f, 100f, 100f), "Reset all"))
                 {
@@ -236,15 +243,11 @@ namespace ELGame
                 CreateHero();
             }
         }
-
-#region Hero
-        [SerializeField] Transform m_heroNode;
-        [SerializeField] GameUnit m_heroModel;
-        [SerializeField] List<GameUnit> m_heros = new List<GameUnit>();
-
+        
         private void CreateHero()
         {
-            if(!m_heroModel || !m_heroNode)
+            GameObject m_heroNode = GameObject.FindGameObjectWithTag(EGameConstL.TAG_HERO_NODE);
+            if (!m_heroModel || !m_heroNode)
                 return;
 
             if(m_allFields.Count == 0)
@@ -253,11 +256,11 @@ namespace ELGame
                 return;
             }
 
-            GameUnit clone = Instantiate<GameUnit>(m_heroModel);
+            Hero clone = Instantiate<Hero>(m_heroModel);
             if(clone)
             {
-                clone.transform.SetParent(m_heroNode);
-                m_heros.Add(clone);
+                clone.transform.SetParent(m_heroNode.transform);
+                m_allHeros.Add(clone);
                 //在城市位置出生
                 int randIdx = Random.Range(0, m_allCities.Count);
                 Vector3 pos = m_allCities[randIdx].transform.position;
@@ -268,6 +271,79 @@ namespace ELGame
                 clone.Init();
             }
         }
-#endregion
+
+        /// <summary>
+        /// 获取一个野外等级，需要参考当前世界所有野外、英雄作出计算
+        /// </summary>
+        /// <returns></returns>
+        public int GetReasonableFieldDifficulty()
+        {
+            //因为计算频次并不会很高，因此我们每次计算都重算一遍所有英雄和野外的情况
+            //如果后期计算频次增加，可以考虑初始化时记录，每次英雄、野外信息变动时更新
+
+            //1  ~ 3:  难度 1
+            //4  ~ 8   难度 2
+            //9  ~ 15  难度 3
+            //16 ~ 23  难度 4
+            //24+      难度 5
+
+            #region 统计英雄情况
+            int[] lvs = new int[] { 3, 8, 15, 23, 30 };
+            //英雄等级情况
+            Dictionary<int, int> heroLvs = new Dictionary<int, int>();
+            //统计英雄情况
+            for (int i = 0; i < m_allHeros.Count; ++i)
+            {
+                for (int j = 0; j < lvs.Length; ++j)
+                {
+                    if (m_allHeros[i].heroData.level <= lvs[j])
+                    {
+                        if (!heroLvs.ContainsKey(j + 1))
+                            heroLvs.Add(j + 1, 1);
+                        else
+                            heroLvs[j + 1] = heroLvs[j + 1] + 1;
+
+                        break;
+                    }
+                }
+            }
+            #endregion
+
+            #region 统计野外情况
+            //野外难度情况
+            Dictionary<int, int> fieldDiffs = new Dictionary<int, int>();
+            for (int i = 0; i < m_allFields.Count; ++i)
+            {
+                FieldData fd = m_allFields[i].fieldData;
+                //认为剩余资源量>1的都为有效野外...
+                if (fd.resRemain > 1f)
+                {
+                    if (!fieldDiffs.ContainsKey(fd.difficulty))
+                        fieldDiffs.Add(fd.difficulty, 1);
+                    else
+                        fieldDiffs[fd.difficulty] = fieldDiffs[fd.difficulty] + 1;
+                }
+            }
+            #endregion
+
+            //推算下一个合理的野外等级
+            //从难度高->低推断
+            int heroCount = m_allHeros.Count;
+            int fieldCount = m_allFields.Count;
+            for (int i = 5; i >= 1; --i)
+            {
+                int heros = 0;
+                heroLvs.TryGetValue(i, out heros);
+                int need = Mathf.CeilToInt(heros / heroCount) * fieldCount;
+
+                int exist = 0;
+                fieldDiffs.TryGetValue(i, out exist);
+
+                //缺少这个等级的野外了
+                if (exist < need)
+                    return i;
+            }
+            return 1;
+        }
     }
 }

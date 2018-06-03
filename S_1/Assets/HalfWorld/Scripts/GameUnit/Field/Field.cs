@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace ELGame
 {
+    [RequireComponent(typeof(MeshRenderer))]
     public class Field
         : GameUnit
     {
@@ -37,7 +38,7 @@ namespace ELGame
         {
             //随机一些数据
             float res = 2f;
-            int difficulty = Random.Range(1, 5);
+            int difficulty = Random.Range(1, 6);
             int gold = Mathf.CeilToInt(res * Random.Range(10, 12f));
             int fame = Mathf.CeilToInt(difficulty * Random.Range(10, 12f));
             int exp = Mathf.CeilToInt(res * Random.Range(1f, 1.2f) * difficulty);
@@ -48,10 +49,9 @@ namespace ELGame
                 exp,
                 gold,
                 fame,
-                difficulty,
-                0.2f,
-                0.3f,
-                0.5f);
+                difficulty);
+
+            ResetDifficultyColor();
 
             m_objTime.SetActive(false);
         }
@@ -83,6 +83,37 @@ namespace ELGame
             //世界管理器移除这个野外
             WorldManager.Instance.OperateField(this, false);
         }
+
+        #region 难度颜色
+        private Material m_colorMaterial;
+        Material ColorMat
+        {
+            get
+            {
+                if (m_colorMaterial == null)
+                {
+                    MeshRenderer render = GetComponent<MeshRenderer>();
+                    m_colorMaterial = render.material;
+                }
+                return m_colorMaterial;
+            }
+        }
+        //难度对应的颜色
+        [SerializeField] Color[] m_colors;
+        private void ResetDifficultyColor()
+        {
+            //根据难度等级设置不同的颜色
+            if (m_colors != null && fieldData.difficulty <= m_colors.Length)
+            {
+                ColorMat.color = m_colors[fieldData.difficulty - 1];
+            }
+            else
+            {
+                //出现问题的设置成洋红色，很直观
+                ColorMat.color = new Color(1, 0, 1);
+            }
+        }
+        #endregion
 
         public override string Desc()
         {

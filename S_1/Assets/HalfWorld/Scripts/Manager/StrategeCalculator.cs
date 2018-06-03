@@ -143,7 +143,7 @@ namespace ELGame
                     break;
                 }
             }
-            return explored * multiple * fieldData.expRate;
+            return explored * multiple * fieldData.exp;
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace ELGame
             if (explored <= 0f)
                 return 0f;
 
-            return explored * fieldData.goldRate;
+            return explored * fieldData.gold;
         }
 
         /// <summary>
@@ -193,7 +193,7 @@ namespace ELGame
                     break;
                 }
             }
-            return explored * multiple * fieldData.fameRate;
+            return explored * multiple * fieldData.fame;
         }
 
         /// <summary>

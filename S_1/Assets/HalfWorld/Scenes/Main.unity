@@ -191,12 +191,11 @@ MonoBehaviour:
   m_cityRadiusRange: {x: 2, y: 3.5}
   m_cityModel: {fileID: 114969168442530694, guid: 2d863222316ff9f4bae46ade1a986f12,
     type: 2}
-  m_allCities: []
-  m_allFields: []
-  m_heroNode: {fileID: 1002542140}
   m_heroModel: {fileID: 114142036173264914, guid: c0a8a2d9e0a03804b9ce4a498b050384,
     type: 2}
-  m_heros: []
+  m_allCities: []
+  m_allFields: []
+  m_allHeros: []
 --- !u!114 &125203153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -208,6 +207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7829bd029c2da3649bd648287b731af9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  diffToLvAndStr: {fileID: 4900000, guid: 685e5602a35c9ab46a0b42fc6dadafa4, type: 3}
   lvToExp: {fileID: 4900000, guid: d9b23dd85c6ded54db49a341f90aca60, type: 3}
   lvToFame: {fileID: 4900000, guid: f902dada82d71374792f5a6280c0bca4, type: 3}
   strToTime: {fileID: 4900000, guid: cb48a26eac7838549a4106cf98b42db2, type: 3}
@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 1002542140}
   m_Layer: 0
   m_Name: HeroNode
-  m_TagString: Untagged
+  m_TagString: HeroNode
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
