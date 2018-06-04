@@ -4,10 +4,19 @@ using UnityEngine;
 
 namespace ELGame
 {
+    
     [RequireComponent(typeof(MeshRenderer))]
     public class Field
         : GameUnit
     {
+        //探索信息
+        public struct ExploreData
+        {
+            public float exploreSpeedMultiple;  //探索速度
+            public float exploredTime;          //总探索时间
+            public float validExploredTime;     //有效探索时间
+        }
+
         //所属城市
         private City m_cityUnit = null;
 
@@ -18,14 +27,20 @@ namespace ELGame
 
         public FieldData fieldData;
 
+        public Dictionary<int, >
+
         public override void Init(params object[] args)
         {
             if(m_inited)
                 return;
-            
-            Reset();
+
+            InitWithDiff(1);
             WorldManager.Instance.OperateField(this, true);
             m_inited = true;
+        }
+
+        public override void Reset(params object[] args)
+        {
         }
 
         public override void Destroy()
@@ -33,29 +48,7 @@ namespace ELGame
             base.Destroy();
             WorldManager.Instance.OperateField(this, false);
         }
-
-        public override void Reset(params object[] args)
-        {
-            //随机一些数据
-            float res = 2f;
-            int difficulty = Random.Range(1, 6);
-            int gold = Mathf.CeilToInt(res * Random.Range(10, 12f));
-            int fame = Mathf.CeilToInt(difficulty * Random.Range(10, 12f));
-            int exp = Mathf.CeilToInt(res * Random.Range(1f, 1.2f) * difficulty);
-
-            //重新创建一个新的野外数据
-            fieldData = new FieldData(
-                res,
-                exp,
-                gold,
-                fame,
-                difficulty);
-
-            ResetDifficultyColor();
-
-            m_objTime.SetActive(false);
-        }
-
+        
         public void Explore(Hero hero)
         {
             if(!hero)
@@ -120,6 +113,29 @@ namespace ELGame
             return string.Empty;
         }
 
+        //重启时间
+        [SerializeField] private float m_resetTime = 10f;
+        IEnumerator WaitForReset()
+        {
+            yield return new WaitForSeconds(m_resetTime);
+            int newDiff = WorldManager.Instance.GetReasonableFieldDifficulty();
+        }
+
+        private void InitWithDiff(int diff)
+        {
+            //重新创建一个新的野外数据
+            fieldData = new FieldData(
+                Random.Range(50f, 100f),
+                0.2f,
+                0.5f,
+                0.3f,
+                diff);
+
+            ResetDifficultyColor();
+
+            m_objTime.SetActive(false);
+        }
+
         //更新时间剩余（血条）
 #region TimeBar
         [SerializeField]
@@ -138,7 +154,6 @@ namespace ELGame
                 m_tranTimeRemain.localScale = new Vector3(1.2f, rm + 0.01f, 1.2f);
             }
         }
-
 #endregion
     }
 }

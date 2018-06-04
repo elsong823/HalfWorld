@@ -150,7 +150,7 @@ namespace ELGame
         void Damage()
         {
             damageTimer += Time.deltaTime;
-            if(damageTimer >= 0.1f)
+            if(damageTimer >= 1f)
             {
                 UpdateHpBar(--heroData.hpCur * 1f / heroData.hpMax);
                 damageTimer = 0f;
