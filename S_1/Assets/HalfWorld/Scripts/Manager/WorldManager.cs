@@ -269,6 +269,7 @@ namespace ELGame
                 clone.gameObject.SetActive(true);
                 //初始化
                 clone.Init();
+                clone.AddExp(Random.Range(0, 200));
             }
         }
 
@@ -334,7 +335,8 @@ namespace ELGame
             {
                 int heros = 0;
                 heroLvs.TryGetValue(i, out heros);
-                int need = Mathf.CeilToInt(heros / heroCount) * fieldCount;
+                int need = Mathf.CeilToInt(1f * heros / heroCount * fieldCount);
+                Debug.LogError(string.Format("{0}->{1}", i, need));
 
                 int exist = 0;
                 fieldDiffs.TryGetValue(i, out exist);

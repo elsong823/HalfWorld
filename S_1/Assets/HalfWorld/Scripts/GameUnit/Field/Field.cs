@@ -10,11 +10,16 @@ namespace ELGame
         : GameUnit
     {
         //探索信息
-        public struct ExploreData
+        public class ExploreData
         {
-            public float exploreSpeedMultiple;  //探索速度
-            public float exploredTime;          //总探索时间
-            public float validExploredTime;     //有效探索时间
+            public float exploreTimeMultiple;   //探索时间倍数
+            public float expMultiple;           //经验倍数
+            public float goldMultiple;          //金币倍数
+            public float fameMultiple;          //声望倍数
+
+            public float expUpdater;
+            public float goldUpdater;
+            public float fameUpdater;
         }
 
         //所属城市
@@ -27,7 +32,8 @@ namespace ELGame
 
         public FieldData fieldData;
 
-        public Dictionary<int, >
+        //正在探索的英雄
+        public Dictionary<int, ExploreData> m_exploringHeros;
 
         public override void Init(params object[] args)
         {
@@ -48,35 +54,104 @@ namespace ELGame
             base.Destroy();
             WorldManager.Instance.OperateField(this, false);
         }
-        
+
+        //重置英雄，当被一个新英雄探索，或英雄的属性发生了变化时调用
+        private void ResetHero(Hero hero, bool resetAll)
+        {
+            if (!hero)
+                return;
+
+            //主要为了重置计算公式呢~
+            ExploreData ed = m_exploringHeros[hero.GetInstanceID()];
+            ed.exploreTimeMultiple = StrategeCalculator.Instance.CalculateExploreTimeMultiple(hero.heroData, fieldData);
+            ed.expMultiple = StrategeCalculator.Instance.CalculateExpMultiple(hero.heroData, fieldData);
+            ed.fameMultiple = StrategeCalculator.Instance.CalculateFameMultiple(hero.heroData, fieldData);
+            ed.goldMultiple = StrategeCalculator.Instance.CalculateGoldMultiple(hero.heroData, fieldData);
+
+            if (resetAll)
+            {
+                ed.expUpdater = 0f;
+                ed.goldUpdater = 0f;
+                ed.fameUpdater = 0f;
+            }
+        }
+
         public void Explore(Hero hero)
         {
             if(!hero)
                 return;
 
-            //临时处理探索速度
-            float explored = Time.deltaTime;
+            if (m_exploringHeros == null)
+                m_exploringHeros = new Dictionary<int, ExploreData>();
+
+            //保存英雄的记录
+            int heroID = hero.GetInstanceID();
+            if (!m_exploringHeros.ContainsKey(heroID))
+            {
+                m_exploringHeros.Add(heroID, new ExploreData());
+                //重置英雄，只重置时间倍数值
+                ResetHero(hero, true);
+            }
+
+            ExploreData ed = m_exploringHeros[heroID];
+
+            float validTime = Time.deltaTime / ed.exploreTimeMultiple;
+            //更新经验
+            ed.expUpdater += (validTime * ed.expMultiple * fieldData.expRate);
+            if (ed.expUpdater >= 1f)
+            {
+                hero.AddExp(1);
+                ed.expUpdater = 0f;
+            }
+            //更新声望
+            ed.fameUpdater += (validTime * ed.fameMultiple * fieldData.fameRate);
+            if (ed.fameUpdater >= 1f)
+            {
+                hero.AddFame(1);
+                ed.fameUpdater = 0f;
+            }
+            //更新金币
+            ed.goldUpdater += (validTime * ed.goldMultiple * fieldData.goldRate);
+            if (ed.goldUpdater >= 1f)
+            {
+                hero.AddGold(1);
+                ed.goldUpdater = 0f;
+            }
+
             //资源量减少
-            fieldData.resRemain -= explored;
+            fieldData.resRemain -= validTime;
             //没有剩余资源了
             if (fieldData.resRemain <= 0f)
             {
                 FieldResOver();
             }
-
-            //显示资源剩余(血条)
-            UpdateRemainBar(fieldData.resRemain / fieldData.resVolume);
+            else
+            {
+                //显示资源剩余(血条)
+                UpdateRemainBar(fieldData.resRemain / fieldData.resVolume);
+            }
         }
 
         //没有资源了
         private void FieldResOver()
         {
-            //隐藏单位
-            gameObject.SetActive(false);
-            //世界管理器移除这个野外
-            WorldManager.Instance.OperateField(this, false);
+            ColorRender.enabled = false;
+            m_objTime.SetActive(false);
+            //准备迎来第二春
+            StartCoroutine(WaitForReset());
         }
 
+        private MeshRenderer m_colorRenderer;
+        private MeshRenderer ColorRender
+        {
+            get
+            {
+                if (m_colorRenderer == null)
+                    m_colorRenderer = GetComponent<MeshRenderer>();
+
+                return m_colorRenderer;
+            }
+        }
         #region 难度颜色
         private Material m_colorMaterial;
         Material ColorMat
@@ -85,8 +160,7 @@ namespace ELGame
             {
                 if (m_colorMaterial == null)
                 {
-                    MeshRenderer render = GetComponent<MeshRenderer>();
-                    m_colorMaterial = render.material;
+                    m_colorMaterial = ColorRender.material;
                 }
                 return m_colorMaterial;
             }
@@ -119,13 +193,15 @@ namespace ELGame
         {
             yield return new WaitForSeconds(m_resetTime);
             int newDiff = WorldManager.Instance.GetReasonableFieldDifficulty();
+            InitWithDiff(newDiff);
+            ColorRender.enabled = true;
         }
 
         private void InitWithDiff(int diff)
         {
             //重新创建一个新的野外数据
             fieldData = new FieldData(
-                Random.Range(50f, 100f),
+                Random.Range(10, 30),
                 0.2f,
                 0.5f,
                 0.3f,

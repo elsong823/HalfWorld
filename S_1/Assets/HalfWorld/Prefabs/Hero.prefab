@@ -242,17 +242,20 @@ MonoBehaviour:
   m_gameUnitType: 3
   m_unitName: GameUnit
   m_heroState: 0
-  m_heroData:
+  m_fieldTarget: {fileID: 0}
+  m_cityTarget: {fileID: 0}
+  m_expLadder: {fileID: 4900000, guid: ef04c9bc4d003ed4bbd029ff2312808e, type: 3}
+  heroData:
     level: 0
     exp: 0
+    fame: 0
+    gold: 0
     hpMax: 0
     hpCur: 0
     strength: 0
     moveSpeed: 0
-  m_fieldTarget: {fileID: 0}
-  m_cityTarget: {fileID: 0}
-  m_tranHpRemain: {fileID: 4404786030229138}
   m_objHP: {fileID: 1246566833852042}
+  m_tranHpRemain: {fileID: 4404786030229138}
 --- !u!136 &136428868976730990
 CapsuleCollider:
   m_ObjectHideFlags: 1

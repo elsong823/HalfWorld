@@ -19,6 +19,9 @@ namespace ELGame
         [SerializeField] private Field m_fieldTarget;
         [SerializeField] private City m_cityTarget;
 
+        [SerializeField] private TextAsset m_expLadder;
+        private static Dictionary<int, int> expLadder;
+
         public HeroData heroData;
 
         private HeroState State
@@ -41,6 +44,24 @@ namespace ELGame
         void Awake()
         {
             Init();
+            if (expLadder == null && m_expLadder != null)
+            {
+                expLadder = new Dictionary<int, int>();
+
+                string[] vals = m_expLadder.text.TrimEnd().Split('\n');
+                for (int i = 1; i < vals.Length; ++i)
+                {
+                    if (vals[i].Contains(","))
+                    {
+                        //分割.csv的每一行
+                        string[] args = vals[i].Split(',');
+                        if (args.Length == 2)
+                        {
+                            expLadder.Add(int.Parse(args[0]), int.Parse(args[1]));
+                        }
+                    }
+                }
+            }
         }
 
         public override void Init(params object[] args)
@@ -93,13 +114,15 @@ namespace ELGame
             while (fields.MoveNext())
             {
                 var field = fields.Current;
-                //获取得分最高的野外为移动目标
-                float curWeight = CalcFieldWeight(field);
-                EUtilityHelperL.LogError(string.Format("{0}->{1:0.00}", field.name, curWeight));
-                if (curWeight > highest)
+                if (field.fieldData.resRemain > 0f)
                 {
-                    target = field;
-                    highest = curWeight;
+                    //获取得分最高的野外为移动目标
+                    float curWeight = CalcFieldWeight(field);
+                    if (curWeight > highest)
+                    {
+                        target = field;
+                        highest = curWeight;
+                    }
                 }
             }
 
@@ -205,6 +228,7 @@ namespace ELGame
             }
             else
             {
+                m_fieldTarget = null;
                 //尝试切换状态
                 State = HeroState.Idle;
             }
@@ -235,9 +259,13 @@ namespace ELGame
         {
             heroData.level = 1;
             heroData.exp = 0;
-            heroData.hpMax = 50;
+            heroData.gold = 0;
+            heroData.fame = 0;
+            heroData.exp = 0;
+            heroData.hpMax = 100;
             heroData.hpCur = heroData.hpMax;
-            heroData.strength = Random.Range(10, 20);
+            heroData.strength = Random.Range(10, 15);
+            heroData.baseStrGrowth = Random.Range(0.2f, 0.205f);
             heroData.moveSpeed = 5;
         }
 
@@ -256,43 +284,40 @@ namespace ELGame
                 heroData, transform.position, 
                 field.fieldData, field.transform.position);
         }
-
-        ///根据英雄情况计算探索时间
-        private float CalcTimeCost(float baseTime, int difficulty, int heroStr)
+        
+        public void AddExp(int addition)
         {
-            return baseTime / CalcExploreSpd(difficulty, heroStr);
-        }
-
-        private float CalcExploreSpd(int difficulty, int heroStr)
-        {
-            int needStr = 10;
-            switch (Mathf.Clamp(difficulty, 1, 5))
+            addition = 15;
+            //获取当前升级所需经验
+            int expNeed = 99999;
+            expLadder.TryGetValue(heroData.level, out expNeed);
+            expNeed -= heroData.exp;
+            if (addition >= expNeed)
             {
-                case 1:
-                    needStr = 10;
-                    break;
-                case 2:
-                    needStr = 20;
-                    break;
-                case 3:
-                    needStr = 40;
-                    break;
-                case 4:
-                    needStr = 65;
-                    break;
-                case 5:
-                    needStr = 100;
-                    break;
+                //升级
+                ++heroData.level;
+                heroData.exp = 0;
+                //恢复生命
+                heroData.hpCur = heroData.hpMax;
+                //力量成长
+                heroData.strength = Mathf.FloorToInt(heroData.strength * (1f + heroData.strGrowth));
+                AddExp(addition - expNeed);
             }
-            float exploreSpd = 1f - (heroStr - needStr * 1f) / needStr;
-            //探索速度
-            exploreSpd = Mathf.Clamp(exploreSpd, 0.5f, 2f);
-
-            return exploreSpd;
+            else
+                heroData.exp += addition;
         }
 
+        public void AddFame(int addition)
+        {
+            heroData.fame += addition;
+        }
 
-#region override
+        public void AddGold(int addition)
+        {
+            heroData.gold += addition;
+        }
+
+        #region override
         public override void Reset(params object[] args)
         {
             

@@ -111,6 +111,84 @@ namespace ELGame
             }
         }
 
+        //计算经验获取倍数
+        public float CalculateExpMultiple(HeroData heroData, FieldData fieldData)
+        {
+            int needLevel = 1;
+            if (!fieldDiff.ContainsKey(fieldData.difficulty))
+            {
+                EUtilityHelperL.LogWarning("错误的野外难度！");
+            }
+            else
+            {
+                needLevel = Mathf.FloorToInt(fieldDiff[fieldData.difficulty].key);
+            }
+            //等级差距
+            float lvGap = heroData.level - needLevel;
+            for (int i = 0; i < ladderExp.Length; ++i)
+            {
+                if (lvGap <= ladderExp[i].key)
+                {
+                    return ladderExp[i].value;
+                }
+            }
+            return ladderExp[ladderExp.Length - 1].value;
+        }
+
+        //计算金币获取倍数
+        public float CalculateGoldMultiple(HeroData heroData, FieldData fieldData)
+        {
+            return 1f;
+        }
+
+        //计算声望获取倍数
+        public float CalculateFameMultiple(HeroData heroData, FieldData fieldData)
+        {
+            int needLevel = 1;
+            if (!fieldDiff.ContainsKey(fieldData.difficulty))
+            {
+                EUtilityHelperL.LogWarning("错误的野外难度！");
+            }
+            else
+            {
+                needLevel = Mathf.FloorToInt(fieldDiff[fieldData.difficulty].key);
+            }
+            //等级差距
+            float lvGap = heroData.level - needLevel;
+            for (int i = 0; i < ladderFame.Length; ++i)
+            {
+                if (lvGap <= ladderFame[i].key)
+                {
+                    return ladderFame[i].value;
+                }
+            }
+            return ladderFame[ladderFame.Length - 1].value;
+        }
+
+        //计算探索速度
+        public float CalculateExploreTimeMultiple(HeroData heroData, FieldData fieldData)
+        {
+            float strNeed = Mathf.Infinity;
+            if (fieldDiff.ContainsKey(fieldData.difficulty))
+            {
+                strNeed = fieldDiff[fieldData.difficulty].value;
+            }
+            else
+            {
+                EUtilityHelperL.LogError("错误的野外难度等级");
+            }
+            //计算力量差距
+            int gap = Mathf.FloorToInt((heroData.strength - strNeed) / strNeed * 100f);
+            for (int i = 0; i < ladderTime.Length; ++i)
+            {
+                if (gap <= ladderTime[i].key)
+                {
+                    return ladderTime[i].value;
+                }
+            }
+            return ladderTime[ladderTime.Length - 1].value;
+        }
+
         /// <summary>
         /// 根据探索量计算经验获取
         /// </summary>
@@ -123,26 +201,8 @@ namespace ELGame
             if (explored <= 0f)
                 return 0f;
 
-            int needLevel = 1;
-            if (!fieldDiff.ContainsKey(fieldData.difficulty))
-            {
-                EUtilityHelperL.LogWarning("错误的野外难度！");
-            }
-            else
-            {
-                needLevel = Mathf.FloorToInt(fieldDiff[fieldData.difficulty].key);
-            }
-            //等级差距
-            float lvGap = heroData.level - needLevel;
-            float multiple = 1f;
-            for (int i = 0; i < ladderExp.Length; ++i)
-            {
-                if (lvGap <= ladderExp[i].key)
-                {
-                    multiple = ladderExp[i].value;
-                    break;
-                }
-            }
+            float multiple = CalculateExpMultiple(heroData, fieldData);
+
             return explored * multiple * fieldData.expRate;
         }
 
@@ -158,7 +218,9 @@ namespace ELGame
             if (explored <= 0f)
                 return 0f;
 
-            return explored * fieldData.goldRate;
+            float multiple = CalculateGoldMultiple(heroData, fieldData);
+
+            return explored * multiple * fieldData.goldRate;
         }
 
         /// <summary>
@@ -173,26 +235,8 @@ namespace ELGame
             if (explored <= 0f)
                 return 0f;
 
-            int needLevel = 1;
-            if (!fieldDiff.ContainsKey(fieldData.difficulty))
-            {
-                EUtilityHelperL.LogWarning("错误的野外难度！");
-            }
-            else
-            {
-                needLevel = Mathf.FloorToInt(fieldDiff[fieldData.difficulty].key);
-            }
-            //等级差距
-            float lvGap = heroData.level - needLevel;
-            float multiple = 1f;
-            for (int i = 0; i < ladderFame.Length; ++i)
-            {
-                if (lvGap <= ladderFame[i].key)
-                {
-                    multiple = ladderFame[i].value;
-                    break;
-                }
-            }
+            float multiple = CalculateFameMultiple(heroData, fieldData);
+
             return explored * multiple * fieldData.fameRate;
         }
 
@@ -207,27 +251,9 @@ namespace ELGame
         {
             if(volume <= 0f)
                 return 0f;
-                
-            float strNeed = Mathf.Infinity;
-            if(fieldDiff.ContainsKey(fieldData.difficulty))
-            {
-                strNeed = fieldDiff[fieldData.difficulty].value;
-            }
-            else
-            {
-                EUtilityHelperL.LogError("错误的野外难度等级");
-            }
-            //计算力量差距
-            int gap = Mathf.FloorToInt((heroData.strength - strNeed) / strNeed * 100f);
-            float timeMultiple = 1f;
-            for(int i = 0; i < ladderTime.Length; ++i)
-            {
-                if(gap <= ladderTime[i].key)
-                {
-                    timeMultiple = ladderTime[i].value;
-                    break;
-                }
-            }
+
+            float timeMultiple = CalculateExploreTimeMultiple(heroData, fieldData);
+
             return volume * timeMultiple;
         }
 
