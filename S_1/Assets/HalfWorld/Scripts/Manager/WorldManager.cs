@@ -269,7 +269,7 @@ namespace ELGame
                 clone.gameObject.SetActive(true);
                 //初始化
                 clone.Init();
-                clone.AddExp(Random.Range(0, 200));
+                clone.AddExp(Random.Range(0, 50));
             }
         }
 

@@ -118,6 +118,7 @@ namespace ELGame
                 {
                     //获取得分最高的野外为移动目标
                     float curWeight = CalcFieldWeight(field);
+                    //Debug.LogError(string.Format("{0} -> {1}", field.name, curWeight));
                     if (curWeight > highest)
                     {
                         target = field;
@@ -264,8 +265,8 @@ namespace ELGame
             heroData.exp = 0;
             heroData.hpMax = 100;
             heroData.hpCur = heroData.hpMax;
-            heroData.strength = Random.Range(10, 15);
-            heroData.baseStrGrowth = Random.Range(0.2f, 0.205f);
+            heroData.strength = 10;
+            heroData.baseStrGrowth = Random.Range(0.2f, 0.215f);
             heroData.moveSpeed = 5;
         }
 
@@ -287,7 +288,6 @@ namespace ELGame
         
         public void AddExp(int addition)
         {
-            addition = 15;
             //获取当前升级所需经验
             int expNeed = 99999;
             expLadder.TryGetValue(heroData.level, out expNeed);
