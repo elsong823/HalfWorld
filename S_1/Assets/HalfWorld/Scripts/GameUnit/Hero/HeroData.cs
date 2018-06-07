@@ -14,21 +14,25 @@ namespace ELGame
         public int hpMax;           //最大生命值
         public int hpCur;           //当前生命值
         public int strength;        //力量，影响探索
-        public float baseStrGrowth; //力量增长
+        public int baseStrGrowth; //力量增长
         public int moveSpeed;       //地图移动速度
+        public int fameFavour;    //声望向
+        public int goldFavour;    //金币向
 
         //力量成长随等级提升而下降
         public float strGrowth
         {
             get
             {
+                float growth = baseStrGrowth;
                 if (level >= 30)
-                    return baseStrGrowth - 1.05f;
+                    growth -= 150f;
                 else if (level > 20)
-                    return baseStrGrowth - 0.1f;
+                    growth -= 100f;
                 else if (level > 10)
-                    return baseStrGrowth - 0.05f;
-                return baseStrGrowth;
+                    growth -= 50f;
+
+                return growth * 0.001f;
             }
         }
     }

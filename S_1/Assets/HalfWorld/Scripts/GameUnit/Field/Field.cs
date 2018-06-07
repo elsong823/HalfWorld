@@ -16,7 +16,7 @@ namespace ELGame
             public float expMultiple;           //经验倍数
             public float goldMultiple;          //金币倍数
             public float fameMultiple;          //声望倍数
-
+            
             public float expUpdater;
             public float goldUpdater;
             public float fameUpdater;
@@ -56,18 +56,24 @@ namespace ELGame
         }
 
         //重置英雄，当被一个新英雄探索，或英雄的属性发生了变化时调用
-        private void ResetHero(Hero hero, bool resetAll)
+        public void ResetHero(Hero hero, bool resetAll)
         {
-            if (!hero)
+            if (!hero || !m_exploringHeros.ContainsKey(hero.GetInstanceID()))
                 return;
 
             //主要为了重置计算公式呢~
             ExploreData ed = m_exploringHeros[hero.GetInstanceID()];
+            float oldExpMultiple = ed.exploreTimeMultiple;
+            float oldFameMultiple = ed.exploreTimeMultiple;
+            float oldGoldMultiple = ed.exploreTimeMultiple;
             ed.exploreTimeMultiple = StrategeCalculator.Instance.CalculateExploreTimeMultiple(hero.heroData, fieldData);
             ed.expMultiple = StrategeCalculator.Instance.CalculateExpMultiple(hero.heroData, fieldData);
             ed.fameMultiple = StrategeCalculator.Instance.CalculateFameMultiple(hero.heroData, fieldData);
             ed.goldMultiple = StrategeCalculator.Instance.CalculateGoldMultiple(hero.heroData, fieldData);
-
+            Debug.LogError("y英雄升级，重置数据");
+            Debug.LogError(string.Format("exp m:{0:0.0} -> {1:0.0}", oldExpMultiple, ed.exploreTimeMultiple));
+            Debug.LogError(string.Format("fame m:{0:0.0} -> {1:0.0}", oldFameMultiple, ed.expMultiple));
+            Debug.LogError(string.Format("gold m:{0:0.0} -> {1:0.0}", oldGoldMultiple, ed.goldMultiple));
             if (resetAll)
             {
                 ed.expUpdater = 0f;
@@ -89,7 +95,7 @@ namespace ELGame
             if (!m_exploringHeros.ContainsKey(heroID))
             {
                 m_exploringHeros.Add(heroID, new ExploreData());
-                //重置英雄，只重置时间倍数值
+                //重置英雄，重置时间倍数值
                 ResetHero(hero, true);
             }
 
@@ -97,21 +103,21 @@ namespace ELGame
 
             float validTime = Time.deltaTime / ed.exploreTimeMultiple;
             //更新经验
-            ed.expUpdater += (validTime * ed.expMultiple * fieldData.expRate);
+            ed.expUpdater += (validTime * ed.expMultiple * fieldData.expRate * 0.01f);
             if (ed.expUpdater >= 1f)
             {
                 hero.AddExp(1);
                 ed.expUpdater = 0f;
             }
             //更新声望
-            ed.fameUpdater += (validTime * ed.fameMultiple * fieldData.fameRate);
+            ed.fameUpdater += (validTime * ed.fameMultiple * fieldData.fameRate * 0.01f);
             if (ed.fameUpdater >= 1f)
             {
                 hero.AddFame(1);
                 ed.fameUpdater = 0f;
             }
             //更新金币
-            ed.goldUpdater += (validTime * ed.goldMultiple * fieldData.goldRate);
+            ed.goldUpdater += (validTime * ed.goldMultiple * fieldData.goldRate * 0.01f);
             if (ed.goldUpdater >= 1f)
             {
                 hero.AddGold(1);
@@ -136,6 +142,7 @@ namespace ELGame
         private void FieldResOver()
         {
             ColorRender.enabled = false;
+            m_exploringHeros.Clear();
             m_objTime.SetActive(false);
             //准备迎来第二春
             StartCoroutine(WaitForReset());
@@ -199,12 +206,17 @@ namespace ELGame
 
         private void InitWithDiff(int diff)
         {
+            int resVolume = Random.Range(10, 30);
+            //生成的野外所带金币、声望比例在一定范围内浮动
+            int fameRate = Random.Range(50, 151);
+            int goldRate = 200 - fameRate;
+
             //重新创建一个新的野外数据
             fieldData = new FieldData(
-                Random.Range(10, 30),
-                0.2f,
-                0.5f,
-                0.3f,
+                resVolume,
+                100,
+                goldRate,
+                fameRate,
                 diff);
 
             ResetDifficultyColor();

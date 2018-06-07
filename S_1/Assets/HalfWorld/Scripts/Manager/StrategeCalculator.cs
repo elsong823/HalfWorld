@@ -203,7 +203,7 @@ namespace ELGame
 
             float multiple = CalculateExpMultiple(heroData, fieldData);
 
-            return explored * multiple * fieldData.expRate;
+            return explored * multiple * fieldData.expRate * 0.01f;
         }
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace ELGame
 
             float multiple = CalculateGoldMultiple(heroData, fieldData);
 
-            return explored * multiple * fieldData.goldRate;
+            return explored * multiple * fieldData.goldRate * 0.01f * heroData.goldFavour * 0.01f;
         }
 
         /// <summary>
@@ -237,7 +237,7 @@ namespace ELGame
 
             float multiple = CalculateFameMultiple(heroData, fieldData);
 
-            return explored * multiple * fieldData.fameRate;
+            return explored * multiple * fieldData.fameRate * 0.01f * heroData.fameFavour * 0.01f;
         }
 
         /// <summary>

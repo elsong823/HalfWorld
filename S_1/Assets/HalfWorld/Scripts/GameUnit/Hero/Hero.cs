@@ -266,8 +266,10 @@ namespace ELGame
             heroData.hpMax = 100;
             heroData.hpCur = heroData.hpMax;
             heroData.strength = 10;
-            heroData.baseStrGrowth = Random.Range(0.2f, 0.215f);
+            heroData.baseStrGrowth = Random.Range(200, 216);
             heroData.moveSpeed = 5;
+            heroData.fameFavour = Random.Range(50, 151);
+            heroData.goldFavour = 200 - heroData.fameFavour;
         }
 
         //计算野外对于此英雄的权重
@@ -302,6 +304,11 @@ namespace ELGame
                 //力量成长
                 heroData.strength = Mathf.FloorToInt(heroData.strength * (1f + heroData.strGrowth));
                 AddExp(addition - expNeed);
+                //更新对于野外的数据
+                if (m_fieldTarget != null && m_fieldTarget.fieldData.resRemain > 0f)
+                {
+                    m_fieldTarget.ResetHero(this, false);
+                }
             }
             else
                 heroData.exp += addition;
