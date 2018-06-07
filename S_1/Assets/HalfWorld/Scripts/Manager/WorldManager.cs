@@ -259,6 +259,7 @@ namespace ELGame
             Hero clone = Instantiate<Hero>(m_heroModel);
             if(clone)
             {
+                clone.name = string.Format("Hero_{0}", m_allHeros.Count);
                 clone.transform.SetParent(m_heroNode.transform);
                 m_allHeros.Add(clone);
                 //在城市位置出生

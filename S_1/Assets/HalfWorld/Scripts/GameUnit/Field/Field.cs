@@ -199,6 +199,7 @@ namespace ELGame
         IEnumerator WaitForReset()
         {
             yield return new WaitForSeconds(m_resetTime);
+            ++m_resetTimes;
             int newDiff = WorldManager.Instance.GetReasonableFieldDifficulty();
             InitWithDiff(newDiff);
             ColorRender.enabled = true;
@@ -222,6 +223,16 @@ namespace ELGame
             ResetDifficultyColor();
 
             m_objTime.SetActive(false);
+        }
+
+        //重置次数
+        private int m_resetTimes = 0;
+        public string FieldName
+        {
+            get
+            {
+                return string.Format("{0}({1})", name, m_resetTimes);   
+            }
         }
 
         //更新时间剩余（血条）

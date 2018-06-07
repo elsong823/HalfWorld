@@ -22,6 +22,12 @@ namespace ELGame
         [SerializeField] private TextAsset m_expLadder;
         private static Dictionary<int, int> expLadder;
 
+        /// <summary>
+        /// 记录当前等级探索过的野外
+        /// </summary>
+        private Dictionary<string, HeroRecord> exploreRecord = new Dictionary<string, HeroRecord>();
+        private HeroRecord curExploring = null;
+
         public HeroData heroData;
 
         private HeroState State
@@ -133,6 +139,24 @@ namespace ELGame
                 m_fieldTarget = target;
                 //切换状态
                 State = HeroState.Move;
+
+                string fieldName = m_fieldTarget.FieldName;
+
+                HeroRecord record = null;
+                if(exploreRecord.TryGetValue(fieldName, out record) == false)
+                {
+                    record = new HeroRecord();
+                    exploreRecord.Add(fieldName, record);
+                    curExploring = record;
+                }
+                record.fieldName = fieldName;
+                record.exp = 0;
+                record.fame = 0;
+                record.gold = 0;
+                record.exploreTime = 0f;
+                record.diff = m_fieldTarget.fieldData.difficulty;
+                record.fameRate = m_fieldTarget.fieldData.fameRate;
+                record.goldRate = m_fieldTarget.fieldData.goldRate;
             }
         }
 
@@ -226,6 +250,11 @@ namespace ELGame
                 m_fieldTarget.Explore(this);
                 //探索时扣减英雄生命
                 Damage();
+                //记录
+                if(curExploring != null)
+                {
+                    curExploring.exploreTime += Time.deltaTime;
+                }
             }
             else
             {
@@ -296,6 +325,16 @@ namespace ELGame
             expNeed -= heroData.exp;
             if (addition >= expNeed)
             {
+                if (curExploring != null)
+                {
+                    curExploring.exp += expNeed;
+                    //升级了，记录数据
+                    foreach (var item in exploreRecord)
+                    {
+                        Debug.LogError("升级了记录下");
+                        DataRecorder.Instance.RecordHero(transform.name, heroData, item.Value);
+                    }
+                }
                 //升级
                 ++heroData.level;
                 heroData.exp = 0;
@@ -311,17 +350,32 @@ namespace ELGame
                 }
             }
             else
+            {
                 heroData.exp += addition;
+
+                if (curExploring != null)
+                {
+                    curExploring.exp += addition;
+                }
+            }
         }
 
         public void AddFame(int addition)
         {
             heroData.fame += addition;
+            if (curExploring != null)
+            {
+                curExploring.fame += addition;
+            }
         }
 
         public void AddGold(int addition)
         {
             heroData.gold += addition;
+            if (curExploring != null)
+            {
+                curExploring.gold += addition;
+            }
         }
 
         #region override
