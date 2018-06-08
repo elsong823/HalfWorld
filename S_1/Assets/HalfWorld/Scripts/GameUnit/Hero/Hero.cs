@@ -331,7 +331,6 @@ namespace ELGame
                     //升级了，记录数据
                     foreach (var item in exploreRecord)
                     {
-                        Debug.LogError("升级了记录下");
                         DataRecorder.Instance.RecordHero(transform.name, heroData, item.Value);
                     }
                 }

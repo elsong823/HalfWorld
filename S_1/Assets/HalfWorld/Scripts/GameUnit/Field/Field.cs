@@ -70,10 +70,10 @@ namespace ELGame
             ed.expMultiple = StrategeCalculator.Instance.CalculateExpMultiple(hero.heroData, fieldData);
             ed.fameMultiple = StrategeCalculator.Instance.CalculateFameMultiple(hero.heroData, fieldData);
             ed.goldMultiple = StrategeCalculator.Instance.CalculateGoldMultiple(hero.heroData, fieldData);
-            Debug.LogError("y英雄升级，重置数据");
-            Debug.LogError(string.Format("exp m:{0:0.0} -> {1:0.0}", oldExpMultiple, ed.exploreTimeMultiple));
-            Debug.LogError(string.Format("fame m:{0:0.0} -> {1:0.0}", oldFameMultiple, ed.expMultiple));
-            Debug.LogError(string.Format("gold m:{0:0.0} -> {1:0.0}", oldGoldMultiple, ed.goldMultiple));
+            //Debug.LogError("y英雄升级，重置数据");
+            //Debug.LogError(string.Format("exp m:{0:0.0} -> {1:0.0}", oldExpMultiple, ed.exploreTimeMultiple));
+            //Debug.LogError(string.Format("fame m:{0:0.0} -> {1:0.0}", oldFameMultiple, ed.expMultiple));
+            //Debug.LogError(string.Format("gold m:{0:0.0} -> {1:0.0}", oldGoldMultiple, ed.goldMultiple));
             if (resetAll)
             {
                 ed.expUpdater = 0f;
@@ -199,6 +199,7 @@ namespace ELGame
         IEnumerator WaitForReset()
         {
             yield return new WaitForSeconds(m_resetTime);
+            //记录重启次数
             ++m_resetTimes;
             int newDiff = WorldManager.Instance.GetReasonableFieldDifficulty();
             InitWithDiff(newDiff);

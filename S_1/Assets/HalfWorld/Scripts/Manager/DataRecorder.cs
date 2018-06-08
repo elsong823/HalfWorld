@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
 
@@ -40,9 +41,15 @@ public class DataRecorder : MonoBehaviour
                                     name, hero.baseStrGrowth, hero.strength, hero.fameFavour, hero.goldFavour, hero.level, record.fieldName, record.diff, record.fameRate, record.goldRate, record.exploreTime, record.exp, record.fame, record.gold);
         }
 
+        private void SaveHeroRecord()
+        {
+            File.WriteAllText(string.Format("{0}/{1}/{2}/{3}.csv", Application.dataPath, "HalfWorld", "DataRecord", "record"), heroDataStr.ToString());
+        }
+
 		private void OnDestroy()
 		{
-            Debug.LogError(heroDataStr.ToString());
-		}
+            SaveHeroRecord();
+
+        }
 	}
 }
