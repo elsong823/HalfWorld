@@ -9,38 +9,34 @@ namespace ELGame
     public class Field
         : GameUnit
     {
-        //探索信息
-        public class ExploreData
-        {
-            public float exploreTimeMultiple;   //探索时间倍数
-            public float expMultiple;           //经验倍数
-            public float goldMultiple;          //金币倍数
-            public float fameMultiple;          //声望倍数
-            
-            public float expUpdater;
-            public float goldUpdater;
-            public float fameUpdater;
-        }
-
         //所属城市
+        [Header("城市相关")]
         private City m_cityUnit = null;
-
         public City CityUnit
         {
             set { m_cityUnit = value; }
         }
 
+        //野外信息
         public FieldData fieldData;
 
-        //正在探索的英雄
-        public Dictionary<int, ExploreData> m_exploringHeros;
+        //野外名字
+        public string FieldName
+        {
+            get
+            {
+                return string.Format("{0}({1})", name, m_resetTimes);   
+            }
+        }
 
         public override void Init(params object[] args)
         {
-            if(m_inited)
+            if (m_inited)
                 return;
 
+            //起始默认难度为1
             InitWithDiff(1);
+            //向世界管理器注册
             WorldManager.Instance.OperateField(this, true);
             m_inited = true;
         }
@@ -52,9 +48,27 @@ namespace ELGame
         public override void Destroy()
         {
             base.Destroy();
+            //通知世界管理器移除
             WorldManager.Instance.OperateField(this, false);
         }
 
+        #region 探索相关
+        //探索信息
+        public class ExploreData
+        {
+            public float exploreTimeMultiple;   //探索时间倍数
+            public float expMultiple;           //经验倍数
+            public float goldMultiple;          //金币倍数
+            public float fameMultiple;          //声望倍数
+
+            public float expUpdater;
+            public float goldUpdater;
+            public float fameUpdater;
+        }
+
+        //探索英雄对应的探索信息(可同时被多个英雄探索)
+        public Dictionary<int, ExploreData> m_exploringHeros;
+        
         //重置英雄，当被一个新英雄探索，或英雄的属性发生了变化时调用
         public void ResetHero(Hero hero, bool resetAll)
         {
@@ -63,9 +77,9 @@ namespace ELGame
 
             //主要为了重置计算公式呢~
             ExploreData ed = m_exploringHeros[hero.GetInstanceID()];
-            float oldExpMultiple = ed.exploreTimeMultiple;
-            float oldFameMultiple = ed.exploreTimeMultiple;
-            float oldGoldMultiple = ed.exploreTimeMultiple;
+            //float oldExpMultiple = ed.exploreTimeMultiple;
+            //float oldFameMultiple = ed.exploreTimeMultiple;
+            //float oldGoldMultiple = ed.exploreTimeMultiple;
             ed.exploreTimeMultiple = StrategeCalculator.Instance.CalculateExploreTimeMultiple(hero.heroData, fieldData);
             ed.expMultiple = StrategeCalculator.Instance.CalculateExpMultiple(hero.heroData, fieldData);
             ed.fameMultiple = StrategeCalculator.Instance.CalculateFameMultiple(hero.heroData, fieldData);
@@ -82,6 +96,7 @@ namespace ELGame
             }
         }
 
+        //英雄探索时帧调用
         public void Explore(Hero hero)
         {
             if(!hero)
@@ -138,74 +153,7 @@ namespace ELGame
             }
         }
 
-        //没有资源了
-        private void FieldResOver()
-        {
-            ColorRender.enabled = false;
-            m_exploringHeros.Clear();
-            m_objTime.SetActive(false);
-            //准备迎来第二春
-            StartCoroutine(WaitForReset());
-        }
-
-        private MeshRenderer m_colorRenderer;
-        private MeshRenderer ColorRender
-        {
-            get
-            {
-                if (m_colorRenderer == null)
-                    m_colorRenderer = GetComponent<MeshRenderer>();
-
-                return m_colorRenderer;
-            }
-        }
-        #region 难度颜色
-        private Material m_colorMaterial;
-        Material ColorMat
-        {
-            get
-            {
-                if (m_colorMaterial == null)
-                {
-                    m_colorMaterial = ColorRender.material;
-                }
-                return m_colorMaterial;
-            }
-        }
-        //难度对应的颜色
-        [SerializeField] Color[] m_colors;
-        private void ResetDifficultyColor()
-        {
-            //根据难度等级设置不同的颜色
-            if (m_colors != null && fieldData.difficulty <= m_colors.Length)
-            {
-                ColorMat.color = m_colors[fieldData.difficulty - 1];
-            }
-            else
-            {
-                //出现问题的设置成洋红色，很直观
-                ColorMat.color = new Color(1, 0, 1);
-            }
-        }
-        #endregion
-
-        public override string Desc()
-        {
-            return string.Empty;
-        }
-
-        //重启时间
-        [SerializeField] private float m_resetTime = 10f;
-        IEnumerator WaitForReset()
-        {
-            yield return new WaitForSeconds(m_resetTime);
-            //记录重启次数
-            ++m_resetTimes;
-            int newDiff = WorldManager.Instance.GetReasonableFieldDifficulty();
-            InitWithDiff(newDiff);
-            ColorRender.enabled = true;
-        }
-
+        //根据难度进行初始化
         private void InitWithDiff(int diff)
         {
             int resVolume = Random.Range(10, 30);
@@ -221,23 +169,94 @@ namespace ELGame
                 fameRate,
                 diff);
 
+            //重置颜色
             ResetDifficultyColor();
 
+            //只在被探索时显示资源剩余量
             m_objTime.SetActive(false);
         }
 
-        //重置次数
-        private int m_resetTimes = 0;
-        public string FieldName
+        //没有资源了
+        private void FieldResOver()
+        {
+            ShowField(false);
+            //清空探索中的英雄列表
+            m_exploringHeros.Clear();
+            //隐藏资源条
+            m_objTime.SetActive(false);
+            //准备迎来第二春
+            StartCoroutine(WaitForReset());
+        }
+
+        //显示及隐藏
+        private void ShowField(bool show)
+        {
+            ColorRender.enabled = show;
+        }
+        #endregion
+
+
+        #region 颜色及显示
+        [SerializeField] Color[] m_colors;
+        private MeshRenderer m_colorRenderer;
+        private Material m_colorMaterial;
+        private MeshRenderer ColorRender
         {
             get
             {
-                return string.Format("{0}({1})", name, m_resetTimes);   
+                if (m_colorRenderer == null)
+                    m_colorRenderer = GetComponent<MeshRenderer>();
+
+                return m_colorRenderer;
             }
         }
+        private Material ColorMat
+        {
+            get
+            {
+                if (m_colorMaterial == null)
+                {
+                    m_colorMaterial = ColorRender.material;
+                }
+                return m_colorMaterial;
+            }
+        }
+        private void ResetDifficultyColor()
+        {
+            //根据难度等级设置不同的颜色
+            if (m_colors != null && fieldData.difficulty <= m_colors.Length)
+            {
+                ColorMat.color = m_colors[fieldData.difficulty - 1];
+            }
+            else
+            {
+                //出现问题的设置成洋红色，很直观
+                ColorMat.color = new Color(1, 0, 1);
+            }
+        }
+        #endregion
 
-        //更新时间剩余（血条）
-#region TimeBar
+        #region 野外重置
+        //重置时间
+        [SerializeField] private float m_resetTime = 10f;  
+        //重置次数
+        private int m_resetTimes = 0;   
+        IEnumerator WaitForReset()
+        {
+            yield return new WaitForSeconds(m_resetTime);
+
+            //记录重启次数
+            ++m_resetTimes;
+            //获取新的难度
+            int newDiff = WorldManager.Instance.GetReasonableFieldDifficulty();
+            //重置数值
+            InitWithDiff(newDiff);
+            //激活显示
+            ShowField(true);
+        }
+        #endregion
+
+        #region 血条及更新
         [SerializeField]
         Transform m_tranTimeRemain;
         [SerializeField]
@@ -255,5 +274,11 @@ namespace ELGame
             }
         }
 #endregion
+
+        public override string Desc()
+        {
+            return string.Empty;
+        }
+
     }
 }

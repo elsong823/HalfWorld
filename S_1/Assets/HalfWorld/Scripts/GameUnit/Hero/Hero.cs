@@ -16,18 +16,21 @@ namespace ELGame
         }
 
         [SerializeField] private HeroState m_heroState = HeroState.Idle;
+
+        //目标
         [SerializeField] private Field m_fieldTarget;
         [SerializeField] private City m_cityTarget;
 
+        //升级所需经验的数据
         [SerializeField] private TextAsset m_expLadder;
+        //转换后的升级经验阶梯
         private static Dictionary<int, int> expLadder;
 
-        /// <summary>
-        /// 记录当前等级探索过的野外
-        /// </summary>
+        //记录被探索数量
         private Dictionary<string, HeroRecord> exploreRecord = new Dictionary<string, HeroRecord>();
         private HeroRecord curExploring = null;
 
+        //英雄数据
         public HeroData heroData;
 
         private HeroState State
@@ -107,9 +110,7 @@ namespace ELGame
             }
         }
 
-        /// <summary>
-        /// 选择目的地
-        /// </summary>
+        //选择目的地
         void SearchTarget()
         {
             float highest = -Mathf.Infinity;
@@ -142,8 +143,9 @@ namespace ELGame
 
                 string fieldName = m_fieldTarget.FieldName;
 
+                //设置探索目标时新建记录
                 HeroRecord record = null;
-                if(exploreRecord.TryGetValue(fieldName, out record) == false)
+                if(!exploreRecord.TryGetValue(fieldName, out record))
                 {
                     record = new HeroRecord();
                     exploreRecord.Add(fieldName, record);
@@ -160,6 +162,7 @@ namespace ELGame
             }
         }
 
+        //移动
         void MoveToTarget()
         {
             if(MoveTarget != null)
@@ -193,7 +196,61 @@ namespace ELGame
             }
         }
 
-        //扣减hp
+        //选择城市
+        void SearchCity()
+        {
+            float dis = Mathf.Infinity;
+            float tempDis = 0f;
+            City target = null;
+            var citys = WorldManager.Instance.AllCities;
+            while (citys.MoveNext())
+            {
+                tempDis = EUtilityHelperL.CalcDistanceIn2D_SQR(citys.Current.transform.position, transform.position);
+                if (tempDis < dis)
+                {
+                    target = citys.Current;
+                    dis = tempDis;
+                }
+            }
+
+            if (target)
+            {
+                m_cityTarget = target;
+                State = HeroState.Move;
+            }
+        }
+
+        //探索目标
+        void ExploreTarget()
+        {
+            if (!m_fieldTarget)
+            {
+                State = HeroState.Idle;
+                return;
+            }
+
+            //如果当前野外还有剩余资源
+            if (m_fieldTarget.fieldData.resRemain > 0f)
+            {
+                //探索
+                m_fieldTarget.Explore(this);
+                //探索时扣减英雄生命
+                Damage();
+                //记录
+                if (curExploring != null)
+                {
+                    curExploring.exploreTime += Time.deltaTime;
+                }
+            }
+            else
+            {
+                m_fieldTarget = null;
+                //尝试切换状态
+                State = HeroState.Idle;
+            }
+        }
+
+        //探索时扣减hp
         float damageTimer = 0f;
         void Damage()
         {
@@ -211,60 +268,7 @@ namespace ELGame
             }
         }
 
-        void SearchCity()
-        {
-            float dis = Mathf.Infinity;
-            float tempDis = 0f;
-            City target = null;
-            var citys = WorldManager.Instance.AllCities;
-            while (citys.MoveNext())
-            {
-                tempDis = EUtilityHelperL.CalcDistanceIn2D_SQR(citys.Current.transform.position, transform.position);
-                if(tempDis < dis)
-                {
-                    target = citys.Current;
-                    dis = tempDis;
-                }
-            }
-
-            if(target)
-            {
-                m_cityTarget = target;
-                State = HeroState.Move;
-            }
-        }
-
-        //探索目标
-        void ExploreTarget()
-        {
-            if(!m_fieldTarget)
-            {
-                State = HeroState.Idle;
-                return;
-            }
-
-            //如果当前野外还有剩余资源
-            if(m_fieldTarget.fieldData.resRemain > 0f)
-            {
-                //探索
-                m_fieldTarget.Explore(this);
-                //探索时扣减英雄生命
-                Damage();
-                //记录
-                if(curExploring != null)
-                {
-                    curExploring.exploreTime += Time.deltaTime;
-                }
-            }
-            else
-            {
-                m_fieldTarget = null;
-                //尝试切换状态
-                State = HeroState.Idle;
-            }
-        }
-
-#region Recover
+#region 恢复生命
         float m_recoverTimer = 0f;
         void RecoverHP()
         {
@@ -276,15 +280,15 @@ namespace ELGame
                 heroData.hpCur = Mathf.Clamp(heroData.hpCur, 0, heroData.hpMax);
                 if (heroData.hpCur == heroData.hpMax)
                 {
-                    //恢复好了继续返回探索
+                    //砖厂很忙，告辞！
                     m_cityTarget = null;
                     State = HeroState.Move;
                 }
             }
         }
+#endregion
 
-        #endregion
-
+        //初始化英雄信息
         private void InitHeroData()
         {
             heroData.level = 1;
@@ -316,7 +320,8 @@ namespace ELGame
                 heroData, transform.position, 
                 field.fieldData, field.transform.position);
         }
-        
+
+        #region 探索时增加数值
         public void AddExp(int addition)
         {
             //获取当前升级所需经验
@@ -328,7 +333,7 @@ namespace ELGame
                 if (curExploring != null)
                 {
                     curExploring.exp += expNeed;
-                    //升级了，记录数据
+                    //等级提升时上报数据
                     foreach (var item in exploreRecord)
                     {
                         DataRecorder.Instance.RecordHero(transform.name, heroData, item.Value);
@@ -352,6 +357,7 @@ namespace ELGame
             {
                 heroData.exp += addition;
 
+                //增加经验、声望、金钱时更新记录
                 if (curExploring != null)
                 {
                     curExploring.exp += addition;
@@ -376,6 +382,7 @@ namespace ELGame
                 curExploring.gold += addition;
             }
         }
+        #endregion
 
         #region override
         public override void Reset(params object[] args)
@@ -389,8 +396,7 @@ namespace ELGame
         }
         #endregion
 
-        //更新血条
-        #region HP Bar
+        #region 血条相关
 
         [SerializeField] GameObject m_objHP;
 
@@ -404,7 +410,6 @@ namespace ELGame
                 m_tranHpRemain.localScale = new Vector3(1.2f, rm + 0.01f, 1.2f);
             }
         }
-
 #endregion
     }
 }
